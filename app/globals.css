@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -10,8 +10,35 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+}
+
 body {
-  font-family: Inter;
+  @apply bg-white font-sans text-gray-90 antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  @apply bg-green-50 text-white;
+}
+
+:focus-visible {
+  @apply outline-none ring-2 ring-green-50 ring-offset-2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer utilities {
@@ -29,6 +56,32 @@ body {
   }
   .btn_dark_green_outline  { 
     @apply border-gray-20 bg-green-90 px-8 py-5 text-white
+  }
+  .btn_outline {
+    @apply border-gray-20 bg-transparent px-8 py-4 text-gray-90 hover:border-green-50 hover:text-green-50
+  }
+  .btn_small {
+    @apply border-green-50 bg-green-50 px-5 py-2.5 text-white hover:bg-green-60
+  }
+
+  .card {
+    @apply rounded-3xl border border-gray-10 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-gray-10 bg-white px-4 py-2 text-[14px] font-[600] text-gray-50 transition-colors hover:border-green-50 hover:text-green-50;
+  }
+
+  .chip-active {
+    @apply border-green-50 bg-green-50 text-white hover:text-white;
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-gray-10 bg-white px-5 py-4 text-[16px] outline-none transition placeholder:text-gray-20 focus:border-green-50 focus:ring-4 focus:ring-green-50/15;
+  }
+
+  .eyebrow {
+    @apply text-[14px] font-[700] uppercase tracking-[0.18em] text-green-50;
   }
   
   .max-container {

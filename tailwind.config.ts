@@ -1,18 +1,22 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  content: ['./components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+      },
       colors: {
         green: {
+          10: '#EAF7EF',
+          20: '#C9EBD5',
           50: '#30AF5B',
+          60: '#26914A',
           90: '#292C27',
         },
         gray: {
+          5: '#F7F7F5',
           10: '#EEEEEE',
           20: '#A2A2A2',
           30: '#7B7B7B',
@@ -20,6 +24,7 @@ module.exports = {
           90: '#141414',
         },
         orange: {
+          10: '#FFF1EA',
           50: '#FF814C',
         },
         blue: {
@@ -30,11 +35,11 @@ module.exports = {
         },
       },
       backgroundImage: {
-        'bg-img-1': "url('/img-1.png')",
-        'bg-img-2': "url('/img-2.png')",
-        'feature-bg': "url('/feature-bg.png')",
-        pattern: "url('/pattern.png')",
-        'pattern-2': "url('/pattern-bg.png')",
+        'bg-img-1': "url('/img-1.webp')",
+        'bg-img-2': "url('/img-2.webp')",
+        'feature-bg': "url('/feature-bg.webp')",
+        pattern: "url('/pattern.webp')",
+        'pattern-2': "url('/pattern-bg.webp')",
       },
       screens: {
         xs: '400px',
@@ -47,7 +52,18 @@ module.exports = {
       borderRadius: {
         '5xl': '40px',
       },
+      keyframes: {
+        marquee: { to: { transform: 'translateX(-50%)' } },
+        float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+        dash: { to: { strokeDashoffset: '0' } },
+      },
+      animation: {
+        marquee: 'marquee 40s linear infinite',
+        float: 'float 5s ease-in-out infinite',
+      },
     },
   },
   plugins: [],
 };
+
+export default config;
