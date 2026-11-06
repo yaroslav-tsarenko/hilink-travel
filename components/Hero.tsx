@@ -40,7 +40,7 @@ export default function Hero() {
 
   return (
     <section className="relative isolate flex min-h-[640px] flex-col justify-end overflow-hidden bg-pine-900 text-sand-50 lg:h-[min(100svh,940px)] lg:min-h-[760px]">
-      <Image src="/photos/hero.webp" alt="A tent pitched on a grassy ridge above a misty alpine valley at dusk" fill priority sizes="100vw" className="-z-20 object-cover object-[62%_50%]" />
+      <Image src="/photos/hero.webp" alt="A tent pitched on a grassy ridge above a misty alpine valley at dusk" fill priority sizes="100vw" className="-z-20 object-cover object-[70%_50%]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(17,36,24,0.82)_0%,rgba(17,36,24,0.5)_45%,rgba(17,36,24,0.05)_75%),linear-gradient(0deg,rgba(17,36,24,0.85)_0%,rgba(17,36,24,0)_45%)]" />
 
       <div className="wrap grid gap-10 pb-10 pt-32 lg:grid-cols-12 lg:items-end lg:pb-14">

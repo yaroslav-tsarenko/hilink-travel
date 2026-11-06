@@ -65,7 +65,7 @@ All photographs are from [Unsplash](https://unsplash.com) and used under the [Un
 | `public/photos/hoh-rain-forest.webp` | Hoh River trip, community | [Griffin Quinn](https://unsplash.com/@griffinquinn) | [Unsplash](https://unsplash.com/photos/a-forest-with-trees-A4W3EwylWZo) |
 | `public/photos/coyote-gulch.webp` | Coyote Gulch trip | [Alex Moliski](https://unsplash.com/@alexmoliski) | [Unsplash](https://unsplash.com/photos/a-view-of-a-canyon-from-a-high-point-of-view-Nf_NvnGAv4o) |
 | `public/photos/west-coast-trail.webp` | West Coast Trail trip, community | [Logan Kuzyk](https://unsplash.com/@logankuzyk) | [Unsplash](https://unsplash.com/photos/a-couple-of-people-walking-along-a-beach-next-to-a-forest-H4E3JCH2-V4) |
-| `public/photos/hero.webp` | Home hero, Open Graph image | [Florian Schindler](https://unsplash.com/@flo_raw) | [Unsplash](https://unsplash.com/photos/yellow-camping-tent-on-a-mountain-with-a-cloudy-sky-Q-TObbvZ9Dw) |
+| `public/photos/hero.webp` | Home hero, Open Graph image (cropped to remove a visible tent brand logo) | [Florian Schindler](https://unsplash.com/@flo_raw) | [Unsplash](https://unsplash.com/photos/yellow-camping-tent-on-a-mountain-with-a-cloudy-sky-Q-TObbvZ9Dw) |
 | `public/photos/auth.webp` | Log in and sign up | [Florian Schindler](https://unsplash.com/@flo_raw) | [Unsplash](https://unsplash.com/photos/tent-and-person-on-a-grassy-hill-under-cloudy-sky-eDyDXzi4MPw) |
 | `public/photos/about.webp` | Home guide quote, About | [Anh Phan](https://unsplash.com/@_pnmanh) | [Unsplash](https://unsplash.com/photos/hikers-on-a-trail-with-misty-mountains-in-the-background-GEMAk0kmcmM) |
 | `public/photos/night-tent.webp` | Tent article | [Master Unknown](https://unsplash.com/@exp00) | [Unsplash](https://unsplash.com/photos/a-tent-on-a-beach-at-night-l_N5amJKaac) |
@@ -78,4 +78,4 @@ The logo, favicon, topographic patterns, route maps and charts are original SVG 
 
 ## Note
 
-Wildway is a portfolio concept. It is not a real company, does not sell trips and is not affiliated with any park, guide association or brand visible in the photographs.
+Wildway is a portfolio concept. It is not a real company, does not sell trips and is not affiliated with any park, guide association or brand visible in the photographs (the gear photographs show incidental product labels).

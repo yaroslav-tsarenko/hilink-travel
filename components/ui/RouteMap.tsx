@@ -27,6 +27,58 @@ export default function RouteMap({ slug, stages = [], progress, className = '', 
   const lineColor = dark ? '#f8f3ea' : '#1f3d2b';
   const topoColor = dark ? 'rgba(248,243,234,0.16)' : 'rgba(31,61,43,0.18)';
 
+  // Label placement: try spots around each anchor and take the first that keeps clear of every marker and of earlier labels.
+  const markers: [number, number, number][] = [[start[0], start[1], 11], [end[0], end[1], 12], ...camps.map(([x, y]) => [x, y, 10] as [number, number, number])];
+  if (me) markers.push([me[0], me[1], 17]);
+  // the dashed route line counts as an obstacle too
+  const lineObstacles: [number, number, number][] = pts.filter((_, i) => i % 2 === 0).map(([x, y]) => [x, y, 8]);
+  const placed: { text: string; x: number; y: number; anchor: 'start' | 'end' | 'middle' }[] = [];
+  if (labels) {
+    const boxes: [number, number, number, number][] = [[W - 44, 10, W - 8, 58], [10, H - 40, 100, H - 8]];
+    const place = (text: string, [px, py]: number[], r: number) => {
+      const w = text.length * 6.6 + 4;
+      const h = 13;
+      const gap = r + 8;
+      const cands: { x: number; y: number; anchor: 'start' | 'end' | 'middle' }[] = [
+        { x: px + gap, y: py + 4, anchor: 'start' },
+        { x: px - gap, y: py + 4, anchor: 'end' },
+        { x: px, y: py - gap - 2, anchor: 'middle' },
+        { x: px, y: py + gap + 11, anchor: 'middle' },
+        { x: px + gap, y: py - gap, anchor: 'start' },
+        { x: px - gap, y: py - gap, anchor: 'end' },
+        { x: px + gap, y: py + gap + 8, anchor: 'start' },
+        { x: px - gap, y: py + gap + 8, anchor: 'end' },
+        { x: px + gap, y: py - gap - 8, anchor: 'start' },
+        { x: px - gap, y: py - gap - 8, anchor: 'end' },
+        { x: Math.max(10, px - w / 2 - 6), y: py - gap - 2, anchor: 'start' },
+        { x: px - 8, y: py - gap - 2, anchor: 'start' },
+        { x: px - 8, y: py + gap + 11, anchor: 'start' },
+        { x: px + 8, y: py - gap - 2, anchor: 'end' },
+        { x: px + 8, y: py + gap + 11, anchor: 'end' },
+        { x: px, y: py - gap - 14, anchor: 'middle' },
+        { x: px, y: py + gap + 24, anchor: 'middle' },
+      ];
+      const box = (c: (typeof cands)[number]): [number, number, number, number] => {
+        const x0 = c.anchor === 'start' ? c.x : c.anchor === 'end' ? c.x - w : c.x - w / 2;
+        return [x0, c.y - h + 3, x0 + w, c.y + 3];
+      };
+      const hits = (b: [number, number, number, number], o: [number, number, number, number]) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1];
+      const cost = (c: (typeof cands)[number]) => {
+        const b = box(c);
+        if (b[0] < 6 || b[2] > W - 6 || b[1] < 6 || b[3] > H - 6) return 1e6;
+        let n = boxes.filter((o) => hits(b, o)).length * 1000;
+        n += markers.filter(([mx, my, mr]) => hits(b, [mx - mr, my - mr, mx + mr, my + mr])).length * 100;
+        n += lineObstacles.filter(([mx, my, mr]) => hits(b, [mx - mr, my - mr, mx + mr, my + mr])).length;
+        return n + cands.indexOf(c) * 0.5;
+      };
+      const c = cands.reduce((best, k) => (cost(k) < cost(best) ? k : best), cands[0]);
+      boxes.push(box(c));
+      placed.push({ text, ...c });
+    };
+    place(labels.start, start, 7);
+    place(labels.end, end, 8);
+  }
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={className} role="img" aria-label={labels ? `Route map from ${labels.start} to ${labels.end}` : 'Route map'}>
       <rect width={W} height={H} fill={dark ? '#1f3d2b' : '#f3ece0'} />
@@ -63,8 +115,9 @@ export default function RouteMap({ slug, stages = [], progress, className = '', 
       )}
       {labels && (
         <g fontFamily="var(--font-inter)" fontSize="11" fontWeight="600" fill={dark ? '#f8f3ea' : '#1b1a17'}>
-          <text x={Math.min(start[0] + 12, W - 120)} y={start[1] + 22}>{labels.start}</text>
-          <text x={Math.max(end[0] - 12, 120)} y={Math.max(end[1] - 16, 16)} textAnchor="end">{labels.end}</text>
+          {placed.map((l) => (
+            <text key={l.text} x={l.x} y={l.y} textAnchor={l.anchor}>{l.text}</text>
+          ))}
         </g>
       )}
       {/* north arrow */}

@@ -43,6 +43,8 @@ export default function CampsExplorer() {
     setDifficulty([]);
     setMaxPrice(PRICE_MAX);
   };
+  // Balanced rhythm at 3 columns: the first cards go two-up so the last row is never a lone card.
+  const wide = list.length < 2 ? 0 : [0, 4, 2][list.length % 3];
   const dirty = Boolean(query) || terrain !== 'All' || difficulty.length > 0 || maxPrice < PRICE_MAX;
 
   return (
@@ -124,11 +126,11 @@ export default function CampsExplorer() {
           </label>
         </div>
 
-        <motion.ul layout className="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
+        <motion.ul layout className="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-6">
           <AnimatePresence mode="popLayout">
-            {list.map((c) => (
-              <motion.li key={c.slug} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                <CampCard camp={c} />
+            {list.map((c, i) => (
+              <motion.li key={c.slug} layout className={i < wide ? 'xl:col-span-3' : 'xl:col-span-2'} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+                <CampCard camp={c} size={i < wide ? 'lg' : 'md'} />
               </motion.li>
             ))}
           </AnimatePresence>
