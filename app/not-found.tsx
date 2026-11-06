@@ -1,16 +1,22 @@
-import Image from 'next/image';
-import Button from '@/components/Button';
+import Link from 'next/link';
+import Topo from '@/components/ui/Topo';
 
 export default function NotFound() {
   return (
-    <section className="max-container padding-container flexCenter flex-col gap-6 py-24 text-center">
-      <Image src="/hero.webp" alt="" width={360} height={290} className="opacity-80" />
-      <p className="eyebrow">Error 404</p>
-      <h1 className="bold-40 lg:bold-64">Looks like you got lost</h1>
-      <p className="regular-18 max-w-lg text-gray-30">Even with offline maps this trail does not exist. Let&apos;s get you back to camp.</p>
-      <div className="flex flex-wrap justify-center gap-3">
-        <Button title="Back home" variant="btn_green" href="/" />
-        <Button title="Browse camps" variant="btn_outline" href="/camps" />
+    <section className="relative overflow-hidden">
+      <Topo seed={404} className="pointer-events-none absolute inset-0 h-full w-full text-pine/15" summits={2} rings={14} />
+      <div className="wrap relative flex min-h-[70svh] flex-col items-start justify-center py-24">
+        <p className="t-label">Error 404 · off route</p>
+        <h1 className="t-display mt-6 max-w-[14ch]">This path is not on the map.</h1>
+        <p className="t-lead mt-6 max-w-[48ch]">The page may have moved, or the link was mistyped. Retrace your steps from somewhere familiar.</p>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link href="/" className="btn btn-primary btn-lg">
+            Back to the start
+          </Link>
+          <Link href="/camps" className="btn btn-outline btn-lg">
+            Browse trips
+          </Link>
+        </div>
       </div>
     </section>
   );

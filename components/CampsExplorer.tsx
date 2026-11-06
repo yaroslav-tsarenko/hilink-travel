@@ -1,20 +1,22 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { CAMPS, DIFFICULTIES, TERRAINS, type Difficulty, type Terrain } from '@/constants/camps';
+import { CAMPS, DIFFICULTIES, PRICE_MAX, PRICE_MIN, TERRAINS, type Difficulty, type Terrain } from '@/constants/camps';
 import CampCard from './ui/CampCard';
+import { Grade } from './ui/Bits';
 
-const SORTS = { popular: 'Most popular', rating: 'Top rated', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low' } as const;
+const SORTS = { popular: 'Most reviewed', rating: 'Highest rated', 'price-asc': 'Price, low to high', 'price-desc': 'Price, high to low', short: 'Shortest first' } as const;
 
 export default function CampsExplorer() {
   const params = useSearchParams();
+  const initialTerrain = params.get('terrain');
   const [query, setQuery] = useState(params.get('q') ?? '');
-  const [terrain, setTerrain] = useState<Terrain | 'All'>((params.get('terrain') as Terrain) ?? 'All');
+  const [terrain, setTerrain] = useState<Terrain | 'All'>(TERRAINS.includes(initialTerrain as Terrain) ? (initialTerrain as Terrain) : 'All');
   const [difficulty, setDifficulty] = useState<Difficulty[]>([]);
-  const [maxPrice, setMaxPrice] = useState(60);
+  const [maxPrice, setMaxPrice] = useState(PRICE_MAX);
   const [sort, setSort] = useState<keyof typeof SORTS>('popular');
 
   const list = useMemo(() => {
@@ -24,12 +26,13 @@ export default function CampsExplorer() {
         (terrain === 'All' || c.terrain === terrain) &&
         (!difficulty.length || difficulty.includes(c.difficulty)) &&
         c.price <= maxPrice &&
-        (!q || `${c.name} ${c.location} ${c.country} ${c.terrain}`.toLowerCase().includes(q)),
+        (!q || `${c.name} ${c.route} ${c.region} ${c.country} ${c.terrain}`.toLowerCase().includes(q)),
     );
     return [...filtered].sort((a, b) => {
       if (sort === 'rating') return b.rating - a.rating;
       if (sort === 'price-asc') return a.price - b.price;
       if (sort === 'price-desc') return b.price - a.price;
+      if (sort === 'short') return a.days - b.days;
       return b.reviews - a.reviews;
     });
   }, [query, terrain, difficulty, maxPrice, sort]);
@@ -38,85 +41,109 @@ export default function CampsExplorer() {
     setQuery('');
     setTerrain('All');
     setDifficulty([]);
-    setMaxPrice(60);
+    setMaxPrice(PRICE_MAX);
   };
-  const dirty = query || terrain !== 'All' || difficulty.length || maxPrice < 60;
+  const dirty = Boolean(query) || terrain !== 'All' || difficulty.length > 0 || maxPrice < PRICE_MAX;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="card flex flex-col gap-5 p-5 lg:p-6">
-        <div className="flex flex-col gap-3 md:flex-row">
-          <label className="relative flex-1">
-            <span className="sr-only">Search camps</span>
-            <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-30" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by camp, region or country" className="input pl-12" />
+    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+      <aside className="lg:col-span-3" aria-label="Filters">
+        <div className="flex flex-col gap-8 lg:sticky lg:top-[100px]">
+          <label className="block">
+            <span className="field-label">Search</span>
+            <span className="relative mt-2 block">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft" aria-hidden />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Route, region, country" className="field pl-10" />
+            </span>
           </label>
-          <label className="flex items-center gap-3 md:w-64">
-            <SlidersHorizontal className="h-5 w-5 shrink-0 text-gray-30" />
-            <span className="sr-only">Sort</span>
-            <select value={sort} onChange={(e) => setSort(e.target.value as keyof typeof SORTS)} className="input cursor-pointer appearance-none py-3.5">
+
+          <fieldset>
+            <legend className="field-label">Terrain</legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(['All', ...TERRAINS] as const).map((t) => (
+                <button key={t} type="button" onClick={() => setTerrain(t)} className="chip" aria-pressed={terrain === t}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend className="field-label">Grade</legend>
+            <div className="mt-3 flex flex-col gap-1">
+              {DIFFICULTIES.map((d) => {
+                const on = difficulty.includes(d);
+                return (
+                  <label key={d} className="flex cursor-pointer items-center justify-between rounded-[6px] px-1 py-1.5 hover:bg-sand-200/60">
+                    <span className="flex items-center gap-3">
+                      <input type="checkbox" checked={on} onChange={() => setDifficulty((all) => (on ? all.filter((x) => x !== d) : [...all, d]))} className="h-4 w-4 accent-pine" />
+                      <span className="text-[0.9375rem]">{d}</span>
+                    </span>
+                    <Grade level={d} showLabel={false} />
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <label className="block">
+            <span className="flex items-baseline justify-between">
+              <span className="field-label">Price per night</span>
+              <span className="t-num text-[0.875rem] text-ink-soft">up to €{maxPrice}</span>
+            </span>
+            <input type="range" min={PRICE_MIN} max={PRICE_MAX} step={5} value={maxPrice} onChange={(e) => setMaxPrice(+e.target.value)} className="mt-3 w-full" />
+            <span className="t-num mt-1 flex justify-between text-[0.75rem] text-ink-soft">
+              <span>€{PRICE_MIN}</span>
+              <span>€{PRICE_MAX}</span>
+            </span>
+          </label>
+
+          {dirty && (
+            <button type="button" onClick={reset} className="inline-flex w-fit items-center gap-1.5 text-[0.875rem] font-semibold text-pine underline underline-offset-4">
+              <X className="h-4 w-4" aria-hidden /> Clear filters
+            </button>
+          )}
+        </div>
+      </aside>
+
+      <div className="lg:col-span-9">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-ink/15 pb-4">
+          <p className="text-[0.9375rem] text-ink-soft" aria-live="polite">
+            <span className="t-num font-semibold text-ink">{list.length}</span> {list.length === 1 ? 'route' : 'routes'}
+            {terrain !== 'All' && <> · {terrain}</>}
+          </p>
+          <label className="flex items-center gap-2 text-[0.875rem]">
+            <span className="text-ink-soft">Sort by</span>
+            <select value={sort} onChange={(e) => setSort(e.target.value as keyof typeof SORTS)} className="cursor-pointer rounded-[6px] border border-line bg-sand-50 px-3 py-2 font-medium outline-none focus:border-pine">
               {Object.entries(SORTS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
+                <option key={k} value={k}>
+                  {v}
+                </option>
               ))}
             </select>
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Terrain">
-          {(['All', ...TERRAINS] as const).map((t) => (
-            <button key={t} type="button" onClick={() => setTerrain(t)} className={`chip ${terrain === t ? 'chip-active' : ''}`} aria-pressed={terrain === t}>
-              {t}
+        <motion.ul layout className="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {list.map((c) => (
+              <motion.li key={c.slug} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+                <CampCard camp={c} />
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </motion.ul>
+
+        {!list.length && (
+          <div className="panel flex flex-col items-start gap-3 p-10">
+            <p className="t-h4">No routes match these filters</p>
+            <p className="text-ink-soft">Try another terrain, add a grade, or raise the price limit.</p>
+            <button type="button" onClick={reset} className="btn btn-primary mt-2">
+              Reset filters
             </button>
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-5 border-t border-gray-10 pt-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Difficulty">
-            <span className="medium-14 mr-1 text-gray-30">Difficulty:</span>
-            {DIFFICULTIES.map((d) => {
-              const on = difficulty.includes(d);
-              return (
-                <button key={d} type="button" aria-pressed={on} onClick={() => setDifficulty((all) => (on ? all.filter((x) => x !== d) : [...all, d]))} className={`chip ${on ? 'chip-active' : ''}`}>
-                  {d}
-                </button>
-              );
-            })}
           </div>
-          <label className="flex items-center gap-4 md:w-80">
-            <span className="medium-14 whitespace-nowrap text-gray-30">Max ${maxPrice}/night</span>
-            <input type="range" min={20} max={60} step={2} value={maxPrice} onChange={(e) => setMaxPrice(+e.target.value)} className="w-full accent-green-50" />
-          </label>
-        </div>
+        )}
       </div>
-
-      <div className="flexBetween">
-        <p className="regular-16 text-gray-30" aria-live="polite">
-          <span className="bold-16 text-gray-90">{list.length}</span> camps found
-        </p>
-        {dirty ? (
-          <button type="button" onClick={reset} className="flex items-center gap-1 text-[14px] font-bold text-green-50 hover:underline">
-            <X className="h-4 w-4" /> Clear filters
-          </button>
-        ) : null}
-      </div>
-
-      <motion.ul layout className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        <AnimatePresence mode="popLayout">
-          {list.map((c) => (
-            <motion.li key={c.slug} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3 }}>
-              <CampCard camp={c} />
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </motion.ul>
-
-      {!list.length && (
-        <div className="card flexCenter flex-col gap-3 p-16 text-center">
-          <p className="bold-20">No camps match these filters</p>
-          <p className="regular-16 text-gray-30">Try a different terrain or raise the price limit.</p>
-          <button type="button" onClick={reset} className="btn_small mt-2 rounded-full border font-bold">Reset filters</button>
-        </div>
-      )}
     </div>
   );
 }

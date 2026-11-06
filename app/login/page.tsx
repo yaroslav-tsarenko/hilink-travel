@@ -7,8 +7,10 @@ export const metadata: Metadata = { title: 'Log in', robots: { index: false } };
 
 export default function LoginPage() {
   return (
-    <AuthLayout title="Welcome back" text="Log in to see your trips, saved camps and offline maps.">
-      <Suspense><AuthForm mode="login" /></Suspense>
+    <AuthLayout title="Welcome back" text="Log in to see your trips, saved routes and route packs.">
+      <Suspense>
+        <AuthForm mode="login" />
+      </Suspense>
     </AuthLayout>
   );
 }

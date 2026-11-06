@@ -2,7 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from 'react';
 
-const KEY = 'hilink:favorites';
+const KEY = 'wildway:saved';
 const listeners = new Set<() => void>();
 let cache: string[] | null = null;
 

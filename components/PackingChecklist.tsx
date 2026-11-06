@@ -4,10 +4,10 @@ import { Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
-const ITEMS = ['Tent & footprint', 'Sleeping bag', 'Headlamp + batteries', 'Water filter', 'Rain jacket', 'First aid kit', 'Offline map downloaded', 'Snacks for the trail'];
+const ITEMS = ['Waterproof jacket and trousers', 'Warm mid-layer', 'Broken-in boots', 'Head torch and spare batteries', 'Sun hat and sunglasses', '2 litres of water capacity', 'Personal first-aid and blister kit', 'Route pack downloaded offline'];
 
 export default function PackingChecklist({ slug }: { slug: string }) {
-  const key = `hilink:pack:${slug}`;
+  const key = `wildway:pack:${slug}`;
   const [done, setDone] = useState<string[]>([]);
 
   useEffect(() => {
@@ -26,30 +26,33 @@ export default function PackingChecklist({ slug }: { slug: string }) {
   const pct = Math.round((done.length / ITEMS.length) * 100);
 
   return (
-    <div className="card p-6 lg:p-8">
-      <div className="flexBetween mb-4">
-        <h3 className="bold-20">Packing checklist</h3>
-        <span className="bold-16 text-green-50">{pct}%</span>
+    <div>
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="t-h3">Your packing list</h2>
+        <span className="t-num text-[0.9375rem] text-ink-soft">
+          {done.length} of {ITEMS.length} packed
+        </span>
       </div>
-      <div className="mb-6 h-2 overflow-hidden rounded-full bg-gray-10">
-        <motion.div className="h-full rounded-full bg-green-50" animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-sand-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Packing progress">
+        <motion.div className="h-full bg-pine" animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 140, damping: 22 }} />
       </div>
-      <ul className="grid gap-2 sm:grid-cols-2">
+      <p className="mt-2 text-[0.8125rem] text-ink-soft">Saved on this device. Group kit is carried by the guides.</p>
+      <ul className="mt-5 grid gap-x-8 sm:grid-cols-2">
         {ITEMS.map((item) => {
           const on = done.includes(item);
           return (
-            <li key={item}>
-              <button type="button" onClick={() => toggle(item)} aria-pressed={on} className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-[14px] font-semibold transition ${on ? 'border-green-50 bg-green-10 text-gray-50 line-through' : 'border-gray-10 hover:border-green-50'}`}>
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition ${on ? 'border-green-50 bg-green-50 text-white' : 'border-gray-20'}`}>
-                  {on && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+            <li key={item} className="border-b border-ink/10">
+              <button type="button" onClick={() => toggle(item)} aria-pressed={on} className="flex w-full items-center gap-3 py-3 text-left text-[0.9375rem]">
+                <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] border transition ${on ? 'border-pine bg-pine text-sand-50' : 'border-ink/40'}`}>
+                  {on && <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden />}
                 </span>
-                {item}
+                <span className={on ? 'text-ink-soft line-through decoration-ink/40' : ''}>{item}</span>
               </button>
             </li>
           );
         })}
       </ul>
-      {pct === 100 && <p className="regular-14 mt-4 font-semibold text-green-60">All packed — have an amazing trip! 🎒</p>}
+      {pct === 100 && <p className="mt-4 text-[0.9375rem] font-medium text-pine">Everything packed. See you at the trailhead.</p>}
     </div>
   );
 }

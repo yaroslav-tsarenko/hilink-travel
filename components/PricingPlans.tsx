@@ -9,13 +9,14 @@ import { COMPARE_ROWS, PLANS } from '@/constants/content';
 export default function PricingPlans() {
   const [yearly, setYearly] = useState(true);
   return (
-    <div className="flex flex-col gap-16">
-      <div className="flexCenter">
-        <div className="relative flex rounded-full bg-gray-5 p-1.5" role="radiogroup" aria-label="Billing period">
+    <div className="flex flex-col gap-14">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-ink-soft">Prices in euros, including VAT. Demo pricing.</p>
+        <div className="flex rounded-[8px] border border-line bg-sand-50 p-1" role="radiogroup" aria-label="Billing period">
           {[false, true].map((y) => (
-            <button key={String(y)} type="button" role="radio" aria-checked={yearly === y} onClick={() => setYearly(y)} className={`relative z-10 rounded-full px-6 py-3 font-bold transition ${yearly === y ? 'text-white' : 'text-gray-50'}`}>
-              {yearly === y && <motion.span layoutId="billing" className="absolute inset-0 -z-10 rounded-full bg-green-50" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
-              {y ? 'Yearly · save 22%' : 'Monthly'}
+            <button key={String(y)} type="button" role="radio" aria-checked={yearly === y} onClick={() => setYearly(y)} className={`relative rounded-[6px] px-4 py-2 text-[0.9375rem] font-semibold transition-colors ${yearly === y ? 'text-sand-50' : 'text-ink-soft hover:text-ink'}`}>
+              {yearly === y && <motion.span layoutId="billing" className="absolute inset-0 rounded-[6px] bg-pine" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+              <span className="relative">{y ? 'Yearly, save over 20%' : 'Monthly'}</span>
             </button>
           ))}
         </div>
@@ -24,27 +25,30 @@ export default function PricingPlans() {
       <ul className="grid gap-6 lg:grid-cols-3">
         {PLANS.map((p) => {
           const price = yearly ? Math.round(p.yearly / 12) : p.monthly;
+          const dark = Boolean(p.popular);
           return (
-            <li key={p.name} className={`relative flex flex-col gap-6 rounded-5xl p-8 transition duration-500 hover:-translate-y-1.5 lg:p-10 ${p.popular ? 'bg-green-90 text-white shadow-2xl' : 'card hover:shadow-xl'}`}>
-              {p.popular && <span className="absolute -top-3.5 left-10 rounded-full bg-orange-50 px-4 py-1.5 text-[12px] font-bold uppercase tracking-wider text-white">Most popular</span>}
-              <div>
-                <h3 className="bold-24">{p.name}</h3>
-                <p className={`regular-16 mt-2 ${p.popular ? 'text-gray-20' : 'text-gray-30'}`}>{p.description}</p>
+            <li key={p.name} className={`relative flex flex-col rounded-card p-7 lg:p-9 ${dark ? 'bg-pine text-sand-50' : 'border border-line bg-sand-50'}`}>
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="font-serif text-[1.75rem]">{p.name}</h3>
+                {dark && <span className="text-[0.8125rem] font-semibold text-ember-tint">Most chosen</span>}
               </div>
-              <p className="flex items-end gap-2">
-                <motion.span key={`${p.name}-${yearly}`} initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="bold-64 tabular-nums">${price}</motion.span>
-                <span className={`mb-3 ${p.popular ? 'text-gray-20' : 'text-gray-30'}`}>/ month</span>
+              <p className={`mt-2 ${dark ? 'text-sand-50/80' : 'text-ink-soft'}`}>{p.description}</p>
+              <p className="mt-8 flex items-end gap-2">
+                <motion.span key={`${p.name}-${yearly}`} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="t-num font-serif text-[3.75rem] font-[350] leading-[0.9]">
+                  €{price}
+                </motion.span>
+                <span className={`mb-1 ${dark ? 'text-sand-50/75' : 'text-ink-soft'}`}>/ month</span>
               </p>
-              <p className={`-mt-4 text-[14px] ${p.popular ? 'text-gray-20' : 'text-gray-30'}`}>{p.monthly === 0 ? 'Free forever' : yearly ? `$${p.yearly} billed yearly` : 'Billed monthly'}</p>
-              <ul className="flex flex-col gap-3">
+              <p className={`mt-2 text-[0.875rem] ${dark ? 'text-sand-50/75' : 'text-ink-soft'}`}>{p.monthly === 0 ? 'Free, no card needed' : yearly ? `€${p.yearly} billed once a year` : 'Billed monthly, cancel anytime'}</p>
+              <ul className={`mt-8 flex flex-col gap-3 border-t pt-6 ${dark ? 'border-sand-50/20' : 'border-ink/15'}`}>
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-3">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-green-50 text-white"><Check className="h-3.5 w-3.5" strokeWidth={3} /></span>
+                  <li key={f} className="flex gap-3">
+                    <Check className={`mt-1 h-4 w-4 shrink-0 ${dark ? 'text-ember' : 'text-pine'}`} strokeWidth={2.5} aria-hidden />
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link href={`/signup?plan=${p.name.toLowerCase()}`} className={`mt-auto rounded-full px-6 py-4 text-center font-bold transition hover:-translate-y-0.5 ${p.popular ? 'bg-green-50 hover:bg-green-60' : 'border border-gray-90 hover:bg-gray-90 hover:text-white'}`}>
+              <Link href={`/signup?plan=${p.name.toLowerCase()}`} className={`btn btn-lg mt-10 ${dark ? 'btn-ember' : 'btn-outline'}`}>
                 {p.cta}
               </Link>
             </li>
@@ -52,28 +56,30 @@ export default function PricingPlans() {
         })}
       </ul>
 
-      <div className="card overflow-x-auto">
+      <div className="overflow-x-auto rounded-card border border-line bg-sand-50">
         <table className="w-full min-w-[640px] text-left">
           <caption className="sr-only">Plan comparison</caption>
           <thead>
-            <tr className="border-b border-gray-10">
-              <th className="bold-18 p-6">Compare plans</th>
+            <tr className="border-b border-ink/15">
+              <th scope="col" className="p-5 font-serif text-[1.25rem] font-normal lg:px-8">
+                Compare plans
+              </th>
               {PLANS.map((p) => (
-                <th key={p.name} className="bold-16 p-6 text-center">{p.name}</th>
+                <th key={p.name} scope="col" className="p-5 text-center text-[0.9375rem] font-semibold">
+                  {p.name}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {COMPARE_ROWS.map((r) => (
-              <tr key={r.label} className="border-b border-gray-10 last:border-0 hover:bg-gray-5">
-                <td className="regular-16 p-6">{r.label}</td>
+              <tr key={r.label} className="border-b border-ink/10 last:border-0">
+                <th scope="row" className="p-5 font-normal lg:px-8">
+                  {r.label}
+                </th>
                 {r.values.map((v, i) => (
-                  <td key={i} className="p-6 text-center">
-                    {typeof v === 'boolean' ? (
-                      v ? <Check className="mx-auto h-5 w-5 text-green-50" aria-label="Included" /> : <Minus className="mx-auto h-5 w-5 text-gray-20" aria-label="Not included" />
-                    ) : (
-                      <span className="font-semibold">{v}</span>
-                    )}
+                  <td key={i} className="t-num p-5 text-center">
+                    {typeof v === 'boolean' ? v ? <Check className="mx-auto h-5 w-5 text-pine" aria-label="Included" /> : <Minus className="mx-auto h-5 w-5 text-ink/30" aria-label="Not included" /> : <span>{v}</span>}
                   </td>
                 ))}
               </tr>

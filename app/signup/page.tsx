@@ -7,8 +7,10 @@ export const metadata: Metadata = { title: 'Create account', robots: { index: fa
 
 export default function SignupPage() {
   return (
-    <AuthLayout title="Start your adventure" text="Create a free account in seconds. No credit card required.">
-      <Suspense><AuthForm mode="signup" /></Suspense>
+    <AuthLayout title="Create an account" text="Free, and you only need one to book. Takes under a minute.">
+      <Suspense>
+        <AuthForm mode="signup" />
+      </Suspense>
     </AuthLayout>
   );
 }

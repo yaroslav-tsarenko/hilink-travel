@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import JobsBoard from '@/components/JobsBoard';
 
-export const metadata: Metadata = { title: 'Jobs', description: 'Join the team building the outdoor app millions of hikers trust.' };
+export const metadata: Metadata = { title: 'Careers', description: 'Guiding, product and operations roles at Wildway.' };
 
 export default function CareersPage() {
   return (
     <>
-      <PageHeader eyebrow="Jobs" title="Build the app that keeps people on the trail" text="Remote-friendly, outdoor-obsessed and small enough that your work matters on day one." crumbs={[{ label: 'Jobs' }]} />
-      <section className="max-container padding-container pb-24"><JobsBoard /></section>
+      <PageHeader label="Careers" title="Work on the trail, or for it" text="Seasonal guiding roles and year-round jobs in product and operations. Remote where the work allows it, outdoors where it does not." crumbs={[{ label: 'Careers' }]} seed={47} />
+      <section className="wrap section">
+        <JobsBoard />
+      </section>
     </>
   );
 }

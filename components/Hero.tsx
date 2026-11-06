@@ -2,154 +2,193 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { MapPin, Search } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { CAMPS } from '@/constants/camps';
-import Button from './Button';
+import { ArrowRight, MapPin, Search } from 'lucide-react';
+import { useId, useMemo, useState, type FormEvent } from 'react';
+import { CAMPS, TERRAINS } from '@/constants/camps';
+import ElevationProfile from './ui/ElevationProfile';
+import { Grade } from './ui/Bits';
 
-const spots = CAMPS.slice(0, 5);
+const featured = CAMPS[0];
 
-const Hero = () => {
-  const [index, setIndex] = useState(2);
-  const [paused, setPaused] = useState(false);
+export default function Hero() {
+  const router = useRouter();
+  const listId = useId();
   const [query, setQuery] = useState('');
+  const [terrain, setTerrain] = useState('');
   const [focused, setFocused] = useState(false);
-  const spot = spots[index];
-
-  useEffect(() => {
-    if (paused) return;
-    const t = window.setInterval(() => setIndex((i) => (i + 1) % spots.length), 4500);
-    return () => window.clearInterval(t);
-  }, [paused]);
+  const [active, setActive] = useState(-1);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return CAMPS.slice(0, 4);
-    return CAMPS.filter((c) => `${c.name} ${c.location} ${c.country} ${c.terrain}`.toLowerCase().includes(q)).slice(0, 5);
+    if (!q) return CAMPS.slice(0, 5);
+    return CAMPS.filter((c) => `${c.name} ${c.region} ${c.country} ${c.terrain} ${c.route}`.toLowerCase().includes(q)).slice(0, 6);
   }, [query]);
 
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (active >= 0 && results[active]) {
+      router.push(`/camps/${results[active].slug}`);
+      return;
+    }
+    const p = new URLSearchParams();
+    if (query.trim()) p.set('q', query.trim());
+    if (terrain) p.set('terrain', terrain);
+    router.push(`/camps${p.size ? `?${p}` : ''}`);
+  };
+
   return (
-    <section className="max-container padding-container flex flex-col gap-20 py-10 pb-32 md:gap-28 lg:py-20 xl:flex-row">
-      <div className="hero-map" />
+    <section className="relative isolate flex min-h-[640px] flex-col justify-end overflow-hidden bg-pine-900 text-sand-50 lg:h-[min(100svh,940px)] lg:min-h-[760px]">
+      <Image src="/photos/hero.webp" alt="A tent pitched on a grassy ridge above a misty alpine valley at dusk" fill priority sizes="100vw" className="-z-20 object-cover object-[62%_50%]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(17,36,24,0.82)_0%,rgba(17,36,24,0.5)_45%,rgba(17,36,24,0.05)_75%),linear-gradient(0deg,rgba(17,36,24,0.85)_0%,rgba(17,36,24,0)_45%)]" />
 
-      <div className="relative z-20 flex flex-1 flex-col xl:w-1/2">
-        <Image src="/camp.svg" alt="" width={50} height={50} className="absolute left-[-5px] top-[-30px] w-10 lg:w-[50px]" />
-        <motion.h1 className="bold-52 lg:bold-88" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-          Putuk Truno Camp Area
-        </motion.h1>
-        <motion.p className="regular-16 mt-6 text-gray-30 xl:max-w-[520px]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }}>
-          We want to be on each of your journeys seeking the satisfaction of seeing the incorruptible beauty of nature. We can help you on an adventure around the world in just one app
-        </motion.p>
+      <div className="wrap grid gap-10 pb-10 pt-32 lg:grid-cols-12 lg:items-end lg:pb-14">
+        <div className="lg:col-span-9 xl:col-span-7">
+          <motion.p className="t-label text-sand-50/85" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+            Guided hiking and wild-camping trips
+          </motion.p>
+          <motion.h1 className="t-display mt-5 max-w-[12ch]" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+            Sleep where the trail runs out.
+          </motion.h1>
+          <motion.p className="mt-6 max-w-[52ch] text-[1.0625rem] leading-relaxed text-sand-50/85 lg:text-[1.1875rem]" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
+            Small groups, local guides and routes we have walked many times — from Lapland and Iceland to Patagonia and the canyons of Utah. Permits sorted, tents on loan, nothing left behind.
+          </motion.p>
 
-        <motion.div className="relative mt-8 xl:max-w-[520px]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.25 }}>
-          <label htmlFor="hero-search" className="sr-only">Search camps</label>
-          <div className={`flex items-center gap-3 rounded-full border bg-white px-5 py-2 shadow-sm transition ${focused ? 'border-green-50 ring-4 ring-green-50/15' : 'border-gray-10'}`}>
-            <Search className="h-5 w-5 text-gray-30" />
-            <input
-              id="hero-search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setFocused(true)}
-              onBlur={() => window.setTimeout(() => setFocused(false), 150)}
-              placeholder="Where do you want to camp?"
-              autoComplete="off"
-              className="min-w-0 flex-1 py-2 outline-none placeholder:text-gray-20"
-            />
-            <Link href={`/camps${query ? `?q=${encodeURIComponent(query)}` : ''}`} className="rounded-full bg-green-50 px-5 py-2.5 text-[14px] font-bold text-white transition hover:bg-green-60">
-              Search
-            </Link>
-          </div>
-          <AnimatePresence>
-            {focused && (
-              <motion.ul initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-gray-10 bg-white p-2 shadow-xl">
-                {results.length ? (
-                  results.map((c) => (
-                    <li key={c.slug}>
-                      <Link href={`/camps/${c.slug}`} className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-green-10">
-                        <span className="flex items-center gap-3">
-                          <MapPin className="h-4 w-4 text-green-50" />
+          <motion.form
+            onSubmit={submit}
+            role="search"
+            className="relative mt-9 max-w-[640px]"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="grid overflow-hidden rounded-[8px] bg-sand-50 text-ink shadow-lift sm:grid-cols-[1fr_170px_auto]">
+              <label className="flex items-center gap-3 px-4 py-2 sm:py-0">
+                <MapPin className="h-5 w-5 shrink-0 text-pine" aria-hidden />
+                <span className="flex min-w-0 flex-1 flex-col py-2">
+                  <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">Where</span>
+                  <input
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setActive(-1);
+                    }}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => window.setTimeout(() => setFocused(false), 150)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        setActive((a) => Math.min(results.length - 1, a + 1));
+                      } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        setActive((a) => Math.max(-1, a - 1));
+                      } else if (e.key === 'Escape') setFocused(false);
+                    }}
+                    placeholder="Region, route or country"
+                    autoComplete="off"
+                    role="combobox"
+                    aria-expanded={focused}
+                    aria-controls={listId}
+                    aria-autocomplete="list"
+                    aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
+                    className="w-full bg-transparent text-[1rem] outline-none placeholder:text-ink-mute"
+                  />
+                </span>
+              </label>
+              <label className="flex flex-col justify-center border-t border-line px-4 py-2.5 sm:border-l sm:border-t-0">
+                <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">Terrain</span>
+                <select value={terrain} onChange={(e) => setTerrain(e.target.value)} className="w-full cursor-pointer bg-transparent py-0.5 text-[1rem] outline-none">
+                  <option value="">Any terrain</option>
+                  {TERRAINS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button type="submit" className="m-2 inline-flex items-center justify-center gap-2 rounded-[6px] bg-pine px-6 py-3.5 font-semibold text-sand-50 transition hover:bg-pine-600">
+                <Search className="h-4 w-4" aria-hidden /> Search
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {focused && (
+                <motion.ul
+                  id={listId}
+                  role="listbox"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-[8px] border border-line bg-sand-50 py-1.5 text-ink shadow-lift"
+                >
+                  {results.length ? (
+                    results.map((c, i) => (
+                      <li key={c.slug} id={`${listId}-${i}`} role="option" aria-selected={i === active}>
+                        <Link href={`/camps/${c.slug}`} className={`flex items-center justify-between gap-4 px-4 py-2.5 ${i === active ? 'bg-sand-200' : 'hover:bg-sand-100'}`}>
                           <span>
-                            <span className="bold-16 block">{c.name}</span>
-                            <span className="regular-14 text-gray-30">{c.location}, {c.country}</span>
+                            <span className="block font-serif text-[1.125rem] leading-tight">{c.name}</span>
+                            <span className="text-[0.8125rem] text-ink-soft">
+                              {c.region}, {c.country}
+                            </span>
                           </span>
-                        </span>
-                        <span className="text-[14px] font-bold text-gray-50">${c.price}</span>
-                      </Link>
-                    </li>
-                  ))
-                ) : (
-                  <li className="regular-14 px-4 py-3 text-gray-30">No camps found — try “lake” or “Peru”.</li>
-                )}
-              </motion.ul>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
-        <div className="my-11 flex flex-wrap gap-5">
-          <div className="flex items-center gap-2">
-            {Array(5)
-              .fill(1)
-              .map((_, i) => (
-                <motion.span key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.08, type: 'spring' }}>
-                  <Image src="/star.svg" alt="" width={24} height={24} />
-                </motion.span>
-              ))}
-          </div>
-          <p className="bold-16 lg:bold-20 text-blue-70">
-            198k
-            <span className="regular-16 lg:regular-20 ml-1">Excellent Reviews</span>
-          </p>
+                          <span className="t-num shrink-0 text-[0.8125rem] text-ink-soft">
+                            {c.days} days · {c.km} km
+                          </span>
+                        </Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="px-4 py-3 text-[0.9375rem] text-ink-soft">No routes match. Try “Norway”, “canyon” or “lake”.</li>
+                  )}
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </motion.form>
         </div>
 
-        <div className="flex w-full flex-col gap-3 sm:flex-row">
-          <Button title="Download App" variant="btn_green" href="/app" />
-          <Button title="How we work?" icon="/play.svg" variant="btn_white_text" href="/how-it-works" />
-        </div>
-      </div>
-
-      <div className="relative flex flex-1 items-start" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-        <motion.div className="relative z-20 flex w-[288px] flex-col gap-8 rounded-3xl bg-green-90 px-7 py-8 shadow-2xl" initial={{ opacity: 0, y: 30, rotate: -3 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: 0.9, delay: 0.3 }}>
-          <AnimatePresence mode="wait">
-            <motion.div key={spot.slug} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35 }} className="flex flex-col gap-8">
-              <div className="flex flex-col">
-                <div className="flexBetween">
-                  <p className="regular-16 text-gray-20">Location</p>
-                  <button type="button" onClick={() => setIndex((i) => (i + 1) % spots.length)} aria-label="Next location" className="rounded-full p-1 transition hover:rotate-90 hover:bg-white/10">
-                    <Image src="/close.svg" alt="" width={24} height={24} />
-                  </button>
-                </div>
-                <Link href={`/camps/${spot.slug}`} className="bold-20 text-white hover:text-green-50">{spot.name}</Link>
-              </div>
-              <div className="flexBetween">
-                <div className="flex flex-col">
-                  <p className="regular-16 block text-gray-20">Distance</p>
-                  <p className="bold-20 text-white">{spot.distance}</p>
-                </div>
-                <div className="flex flex-col">
-                  <p className="regular-16 block text-gray-20">Elevation</p>
-                  <p className="bold-20 text-white">{spot.elevation}</p>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-          <div className="flex gap-1.5" role="tablist" aria-label="Featured locations">
-            {spots.map((s, i) => (
-              <button
-                key={s.slug}
-                type="button"
-                role="tab"
-                aria-selected={i === index}
-                aria-label={s.name}
-                onClick={() => setIndex(i)}
-                className={`h-1.5 rounded-full transition-all ${i === index ? 'w-8 bg-green-50' : 'w-3 bg-white/25 hover:bg-white/50'}`}
-              />
-            ))}
+        <motion.aside
+          aria-label="Route of the month"
+          className="hidden self-end rounded-[10px] bg-sand-50 p-6 text-ink shadow-lift xl:col-span-4 xl:col-start-9 xl:block"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.35 }}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="t-label">Route of the month</p>
+              <p className="mt-2 font-serif text-[1.75rem] leading-none">{featured.name}</p>
+              <p className="mt-1.5 text-[0.875rem] text-ink-soft">{featured.route}</p>
+            </div>
+            <span className="t-num shrink-0 whitespace-pre-line text-right text-[0.75rem] leading-snug text-ink-soft">{featured.coords.replace(', ', '\n')}</span>
           </div>
-        </motion.div>
+          <ElevationProfile profile={featured.profile} km={featured.km} compact className="mt-4" />
+          <dl className="t-num mt-3 grid grid-cols-4 gap-2 border-t border-ink/15 pt-3 text-[0.8125rem]">
+            <div>
+              <dt className="text-ink-soft">Days</dt>
+              <dd className="font-semibold">{featured.days}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Distance</dt>
+              <dd className="font-semibold">{featured.km} km</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Ascent</dt>
+              <dd className="font-semibold">{featured.ascent.toLocaleString('en-GB')} m</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Grade</dt>
+              <dd className="font-semibold">
+                <Grade level={featured.difficulty} showLabel={false} />
+              </dd>
+            </div>
+          </dl>
+          <Link href={`/camps/${featured.slug}`} className="link mt-4 text-[0.9375rem]">
+            See dates and itinerary <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </motion.aside>
       </div>
     </section>
   );
-};
-
-export default Hero;
+}

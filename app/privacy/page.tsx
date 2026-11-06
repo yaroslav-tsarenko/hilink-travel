@@ -1,18 +1,18 @@
 import type { Metadata } from 'next';
 import LegalPage from '@/components/LegalPage';
 
-export const metadata: Metadata = { title: 'Privacy Policy' };
+export const metadata: Metadata = { title: 'Privacy' };
 
 export default function PrivacyPage() {
   return (
     <LegalPage
-      title="Privacy Policy"
+      title="Privacy"
       sections={[
-        { h: 'What we collect', p: 'Account details you provide, trips you plan and, only while navigating, your location. Offline maps never send your position to our servers.' },
-        { h: 'How we use it', p: 'To show you relevant camps, sync your trips between devices and improve route suggestions. We never sell personal data.' },
-        { h: 'Sharing', p: 'When you book a camp we share your name and dates with that camp only. Group trips share your schedule with the members you invite.' },
-        { h: 'Your choices', p: 'You can export or delete your data at any time from account settings, or by contacting hilink@akinthil.com.' },
-        { h: 'Cookies', p: 'This website uses only essential cookies and local storage to remember saved camps and preferences.' },
+        { h: 'What we collect', p: 'The details you give us when you book or create an account, the trips you request, and basic analytics about how the site is used. The field app records your position only while a route is open, and keeps it on the device.' },
+        { h: 'How we use it', p: 'To arrange your trip, match you with a guide, send route packs and forecasts, and improve the service. We do not sell personal data.' },
+        { h: 'Who we share it with', p: 'Your guide, and where a permit is issued in your name, the park authority. Nobody else, unless the law requires it.' },
+        { h: 'Your choices', p: 'You can download or delete your data at any time from your account, or by writing to us.' },
+        { h: 'Cookies and storage', p: 'This site uses only local storage, to remember saved trips and packing lists on your device. No tracking cookies.' },
       ]}
     />
   );

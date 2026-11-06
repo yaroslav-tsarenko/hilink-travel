@@ -1,41 +1,50 @@
 import type { Metadata } from 'next';
-import { Mail, MapPin, Phone } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ContactForm from '@/components/ContactForm';
 import FaqList from '@/components/FaqList';
-import Reveal from '@/components/ui/Reveal';
+import { CONTACT } from '@/constants';
 
-export const metadata: Metadata = { title: 'Contact us', description: 'Questions about bookings, the app or partnerships? The Hilink team is here to help.' };
+export const metadata: Metadata = { title: 'Contact', description: 'Questions about a trip, a private group or gear rental. We reply within one working day.' };
 
 const CHANNELS = [
-  { icon: Phone, label: 'Admin Officer', value: '123-456-7890', href: 'tel:1234567890' },
-  { icon: Mail, label: 'Email Officer', value: 'hilink@akinthil.com', href: 'mailto:hilink@akinthil.com' },
-  { icon: MapPin, label: 'Base camp', value: 'Prigen, Pasuruan, Indonesia', href: '/camps/putuk-truno' },
+  { label: 'Email', value: CONTACT.email, href: `mailto:${CONTACT.email}` },
+  { label: 'Office', value: CONTACT.base },
+  { label: 'Hours', value: 'Mon–Fri, 08:00–17:00 CET' },
 ];
 
 export default function ContactPage() {
   return (
     <>
-      <PageHeader eyebrow="Contact" title="We are here for you" text="Lost on the way to a booking or found a bug at the top of a mountain? Write to us." crumbs={[{ label: 'Contact' }]} />
-      <section className="max-container padding-container grid gap-10 pb-24 lg:grid-cols-[1fr_1.5fr]">
-        <div className="flex flex-col gap-4">
-          {CHANNELS.map(({ icon: Icon, label, value, href }, i) => (
-            <Reveal key={label} delay={i * 0.08}>
-              <a href={href} className="card group flex items-center gap-5 p-6 transition hover:-translate-y-1 hover:border-green-50 hover:shadow-lg">
-                <span className="grid h-14 w-14 place-items-center rounded-full bg-green-50 text-white transition group-hover:rotate-[-10deg]"><Icon className="h-6 w-6" /></span>
-                <span>
-                  <span className="regular-14 block text-gray-30">{label}</span>
-                  <span className="bold-18">{value}</span>
-                </span>
-              </a>
-            </Reveal>
+      <PageHeader label="Contact" title="Ask a guide" text="Not sure a route suits you, planning a private group, or looking for gear? Write to us. A guide answers, not a bot." crumbs={[{ label: 'Contact' }]} seed={59} />
+      <section className="wrap section grid gap-12 lg:grid-cols-12">
+        <dl className="flex flex-col lg:col-span-4">
+          {CHANNELS.map((c) => (
+            <div key={c.label} className="border-t border-ink/20 py-5 last:border-b">
+              <dt className="t-label">{c.label}</dt>
+              <dd className="mt-2 font-serif text-[1.375rem] leading-snug">
+                {c.href ? (
+                  <a href={c.href} className="underline decoration-ink/25 underline-offset-4 hover:decoration-ink">
+                    {c.value}
+                  </a>
+                ) : (
+                  c.value
+                )}
+              </dd>
+            </div>
           ))}
+        </dl>
+        <div className="lg:col-span-8">
+          <ContactForm />
         </div>
-        <ContactForm />
       </section>
-      <section className="max-container padding-container grid gap-12 pb-24 lg:grid-cols-[1fr_1.4fr]">
-        <Reveal><p className="eyebrow mb-3">FAQ</p><h2 className="bold-40">Quick answers</h2></Reveal>
-        <FaqList />
+      <section className="wrap grid gap-12 pb-20 lg:grid-cols-12 lg:pb-28">
+        <div className="lg:col-span-4">
+          <p className="t-label">Questions</p>
+          <h2 className="t-h2 mt-4">Quick answers</h2>
+        </div>
+        <div className="lg:col-span-8">
+          <FaqList />
+        </div>
       </section>
     </>
   );

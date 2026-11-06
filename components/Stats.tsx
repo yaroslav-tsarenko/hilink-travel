@@ -3,36 +3,42 @@
 import { animate, useInView } from 'motion/react';
 import { useEffect, useRef } from 'react';
 
-function Num({ to, suffix }: { to: number; suffix: string }) {
+function Num({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   useEffect(() => {
     if (!inView || !ref.current) return;
     const node = ref.current;
-    const c = animate(0, to, { duration: 1.8, ease: [0.16, 1, 0.3, 1], onUpdate: (v) => (node.textContent = `${Math.round(v).toLocaleString('en')}${suffix}`) });
+    const c = animate(0, to, { duration: 1.4, ease: [0.16, 1, 0.3, 1], onUpdate: (v) => (node.textContent = `${Math.round(v).toLocaleString('en-GB')}${suffix}`) });
     return () => c.stop();
   }, [inView, to, suffix]);
-  return <span ref={ref}>0{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {to.toLocaleString('en-GB')}
+      {suffix}
+    </span>
+  );
 }
 
 const STATS = [
-  { to: 1200, suffix: '+', label: 'Partner camps' },
-  { to: 198, suffix: 'k', label: 'Excellent reviews' },
-  { to: 64, suffix: '', label: 'Countries' },
-  { to: 2, suffix: 'M', label: 'Offline maps downloaded' },
+  { to: 10, label: 'Regions on four continents' },
+  { to: 46, label: 'Certified local guides' },
+  { to: 3140, label: 'Nights out last season' },
+  { to: 8, label: 'Walkers per group, on average' },
 ];
 
-export default function Stats() {
+export default function Stats({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+  const light = tone === 'light';
   return (
-    <section className="max-container padding-container py-24">
-      <ul className="grid grid-cols-2 gap-6 rounded-5xl bg-green-90 p-8 text-white lg:grid-cols-4 lg:p-14">
-        {STATS.map((s) => (
-          <li key={s.label} className="flex flex-col gap-2">
-            <span className="bold-40 lg:bold-52 text-green-50 tabular-nums"><Num to={s.to} suffix={s.suffix} /></span>
-            <span className="regular-16 text-gray-20">{s.label}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <dl className={`grid grid-cols-2 border-t lg:grid-cols-4 ${light ? 'border-sand-50/25' : 'border-ink/20'}`}>
+      {STATS.map((s, i) => (
+        <div key={s.label} className={`flex flex-col-reverse justify-end py-7 pr-4 ${i % 2 ? 'pl-5 lg:pl-6' : 'lg:pl-6'} ${i ? `border-l ${light ? 'border-sand-50/25' : 'border-ink/20'}` : ''} ${i === 2 ? 'max-lg:border-l-0 max-lg:pl-0' : ''} ${i >= 2 ? `max-lg:border-t ${light ? 'max-lg:border-sand-50/25' : 'max-lg:border-ink/20'}` : ''} first:pl-0`}>
+          <dt className={`mt-3 text-[0.9375rem] ${light ? 'text-sand-50/80' : 'text-ink-soft'}`}>{s.label}</dt>
+          <dd className={`t-num font-serif text-[clamp(2.5rem,5vw,4rem)] font-[350] leading-none ${light ? 'text-sand-50' : 'text-pine'}`}>
+            <Num to={s.to} />
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }

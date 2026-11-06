@@ -1,76 +1,77 @@
-import { FOOTER_CONTACT_INFO, FOOTER_LINKS, SOCIALS } from '@/constants';
-import Image from 'next/image';
+import { CONTACT, FOOTER_LINKS } from '@/constants';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 import Newsletter from './Newsletter';
+import Logo from './ui/Logo';
+import Topo from './ui/Topo';
 
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="flexCenter mb-16 mt-10">
-      <div className="padding-container max-container flex w-full flex-col gap-14">
-        <Newsletter />
-        <div className="flex flex-col items-start justify-center gap-[8%] md:flex-row">
-          <Link href="/" className="mb-10" aria-label="Hilink home">
-            <Image src="/hilink-logo.svg" alt="Hilink" width={74} height={29} />
-          </Link>
+    <footer className="relative overflow-hidden bg-pine text-sand-50">
+      <Topo seed={41} className="pointer-events-none absolute inset-0 h-full w-full text-sand-50/[0.07]" summits={4} rings={14} />
+      <div className="wrap relative">
+        <div className="grid gap-12 border-b border-sand-50/20 py-16 lg:grid-cols-12 lg:py-20">
+          <div className="lg:col-span-6">
+            <p className="t-label text-sand-50/75">The Trail Letter</p>
+            <h2 className="t-h2 mt-5 max-w-[16ch]">One route, one forecast, one good read. Fridays.</h2>
+          </div>
+          <div className="flex items-end lg:col-span-5 lg:col-start-8">
+            <Newsletter />
+          </div>
+        </div>
 
-          <div className="flex flex-wrap gap-10 sm:justify-between md:flex-1">
-            {FOOTER_LINKS.map((column) => (
-              <FooterColumn title={column.title} key={column.title}>
-                <ul className="regular-14 flex flex-col gap-4 text-gray-30">
-                  {column.links.map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="transition hover:text-green-50">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </FooterColumn>
-            ))}
-
-            <FooterColumn title={FOOTER_CONTACT_INFO.title}>
-              {FOOTER_CONTACT_INFO.links.map((link) => (
-                <a href={link.href} key={link.label} className="regular-14 flex gap-4 text-gray-30 md:flex-col lg:flex-row">
-                  <span className="whitespace-nowrap">{link.label}:</span>
-                  <span className="medium-14 whitespace-nowrap text-blue-70 hover:text-green-50">{link.value}</span>
-                </a>
-              ))}
-            </FooterColumn>
-
-            <FooterColumn title={SOCIALS.title}>
-              <ul className="flex gap-4">
-                {SOCIALS.links.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} aria-label={link.label} className="block transition hover:-translate-y-1" {...(link.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-                      <Image src={link.icon} alt="" width={24} height={24} />
+        <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <Link href="/" aria-label="Wildway home">
+              <Logo tone="light" />
+            </Link>
+            <p className="mt-5 max-w-[34ch] text-[0.9375rem] leading-relaxed text-sand-50/80">Guided hiking and wild-camping trips in small groups, on routes we know well.</p>
+            <p className="mt-5 text-[0.9375rem] text-sand-50/80">
+              <a href={`mailto:${CONTACT.email}`} className="underline decoration-sand-50/40 underline-offset-4 hover:decoration-sand-50">
+                {CONTACT.email}
+              </a>
+              <br />
+              {CONTACT.base}
+            </p>
+          </div>
+          {FOOTER_LINKS.map((col) => (
+            <div key={col.title} className="lg:col-span-2">
+              <h3 className="t-label text-sand-50/70">{col.title}</h3>
+              <ul className="mt-5 flex flex-col gap-3 text-[0.9375rem]">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-sand-50/90 hover:text-sand-50 hover:underline hover:underline-offset-4">
+                      {l.label}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </FooterColumn>
-          </div>
+            </div>
+          ))}
         </div>
 
-        <div className="border bg-gray-20" />
-        <div className="regular-14 flex flex-col items-center justify-between gap-3 text-gray-30 sm:flex-row">
-          <p>{new Date().getFullYear()} Hilink | All rights reserved</p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-green-50">Privacy</Link>
-            <Link href="/terms" className="hover:text-green-50">Terms</Link>
-            <Link href="/contact" className="hover:text-green-50">Support</Link>
-          </div>
+        <div className="flex flex-col gap-4 border-t border-sand-50/20 py-8 text-[0.8125rem] text-sand-50/75 md:flex-row md:items-start md:justify-between">
+          <p className="max-w-[78ch]">
+            Wildway is a concept project designed and built by Yaroslav Tsarenko. Trips, prices, availability, people and reviews are demo data; route descriptions refer to real places. Photography from Unsplash contributors, credited in the README.
+          </p>
+          <ul className="flex shrink-0 gap-6">
+            <li>
+              <Link href="/privacy" className="hover:text-sand-50 hover:underline">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-sand-50 hover:underline">
+                Terms
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-sand-50 hover:underline">
+                Support
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
     </footer>
   );
-};
-
-const FooterColumn = ({ title, children }: { title: string; children: ReactNode }) => (
-  <div className="flex flex-col gap-5">
-    <h4 className="bold-18 whitespace-nowrap">{title}</h4>
-    {children}
-  </div>
-);
-
-export default Footer;
+}

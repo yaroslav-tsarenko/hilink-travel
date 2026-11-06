@@ -19,10 +19,18 @@ export default function ShareButtons({ title }: { title: string }) {
         }}
         className="chip"
       >
-        <Link2 className="h-4 w-4" /> Copy link
+        <Link2 className="h-4 w-4" aria-hidden /> Copy link
       </button>
-      <button type="button" aria-pressed={saved} onClick={() => { setSaved(!saved); toast({ title: saved ? 'Removed from reading list' : 'Saved to reading list' }); }} className={`chip ${saved ? 'chip-active' : ''}`}>
-        <Bookmark className="h-4 w-4" /> {saved ? 'Saved' : 'Save'}
+      <button
+        type="button"
+        aria-pressed={saved}
+        onClick={() => {
+          setSaved(!saved);
+          toast({ title: saved ? 'Removed from reading list' : 'Saved to reading list' });
+        }}
+        className="chip"
+      >
+        <Bookmark className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} aria-hidden /> {saved ? 'Saved' : 'Save'}
       </button>
     </div>
   );

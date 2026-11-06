@@ -1,51 +1,74 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
 import Reveal from '@/components/ui/Reveal';
 import GearCalculator from '@/components/GearCalculator';
-import GetApp from '@/components/GetApp';
-import Button from '@/components/Button';
+import PlanCta from '@/components/PlanCta';
+import { SectionHead } from '@/components/ui/Bits';
 import { SERVICES } from '@/constants/content';
 
 export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Offline maps, AR navigation, trip scheduling, camp booking, gear rental and certified local guides.',
+  title: 'Gear and services',
+  description: 'Guided trips, permits, gear rental, offline route packs, skills courses and private departures.',
 };
 
 export default function ServicesPage() {
   return (
     <>
-      <PageHeader eyebrow="Services" title="Everything for the trail, in one app" text="From the first idea to the last campfire — maps, bookings, gear and people who know the mountains." crumbs={[{ label: 'Services' }]} />
+      <PageHeader
+        label="Gear and services"
+        title="Everything except the walking"
+        text="Permits, transfers, route packs and a full kit waiting at the trailhead, so the only thing you prepare is yourself."
+        crumbs={[{ label: 'Gear and services' }]}
+        photo={{ src: '/photos/stove.webp', alt: 'A small gas stove and cooking pot on a rock above a valley' }}
+        seed={9}
+      />
 
-      <section className="max-container padding-container pb-24">
-        <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <section className="wrap section">
+        <ul className="grid gap-x-10 md:grid-cols-2 xl:grid-cols-3">
           {SERVICES.map((s, i) => (
-            <li key={s.id} id={s.id} className="scroll-mt-28">
-              <Reveal delay={(i % 3) * 0.08} className="card group h-full p-8 transition duration-500 hover:-translate-y-1.5 hover:border-green-50 hover:shadow-xl">
-                <div className="grid h-16 w-16 place-items-center rounded-full bg-green-50 transition duration-500 group-hover:scale-110 group-hover:rotate-[-8deg]">
-                  <Image src={s.icon} alt="" width={30} height={30} />
-                </div>
-                <h2 className="bold-24 mt-6">{s.title}</h2>
-                <p className="regular-16 mt-3 text-gray-30">{s.text}</p>
+            <li key={s.id} id={s.id} className="scroll-mt-28 border-t border-ink/20">
+              <Reveal delay={(i % 3) * 0.05} className="h-full pb-12 pt-6">
+                <span className="t-num text-[0.8125rem] font-semibold text-ember-ink">{String(i + 1).padStart(2, '0')}</span>
+                <h2 className="t-h3 mt-3">{s.title}</h2>
+                <p className="mt-3 max-w-[40ch] text-ink-soft">{s.text}</p>
               </Reveal>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="max-container padding-container pb-24">
-        <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-6">
-          <div className="max-w-2xl">
-            <p className="eyebrow mb-3">Gear rental</p>
-            <h2 className="bold-40 lg:bold-52">Travel light. We have the gear.</h2>
-            <p className="regular-16 mt-4 text-gray-30">Build your kit and see the price instantly. Everything is waiting for you at the camp.</p>
+      <section id="gear" className="scroll-mt-24 border-y border-ink/10 bg-sand-100">
+        <div className="wrap section">
+          <SectionHead
+            label="Gear rental"
+            title="Build a kit, see the price"
+            text="Everything is cleaned and checked after every trip, and repaired rather than replaced. Pick up at the start point, leave it at the end."
+            href="/pricing"
+            linkLabel="Members get free rental days"
+          />
+          <div className="mt-12">
+            <GearCalculator />
           </div>
-          <Button title="See pricing plans" variant="btn_outline" href="/pricing" />
-        </Reveal>
-        <GearCalculator />
+        </div>
       </section>
 
-      <GetApp />
+      <section className="wrap section grid gap-10 lg:grid-cols-12 lg:items-center">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-card lg:col-span-6">
+          <Image src="/photos/map-compass.webp" alt="A baseplate compass on a topographic map" fill sizes="(max-width: 1024px) 92vw, 640px" className="object-cover" />
+        </div>
+        <div className="lg:col-span-5 lg:col-start-8">
+          <p className="t-label">Skills courses</p>
+          <h2 className="t-h2 mt-4">Navigation without a screen</h2>
+          <p className="t-lead mt-5">One-day courses on real terrain: map and compass in fog, crossing rivers safely, and pitching in strong wind. Run before most Hard departures.</p>
+          <Link href="/guides/map-and-compass-basics" className="link mt-6">
+            Read the ten-minute refresher
+          </Link>
+        </div>
+      </section>
+
+      <PlanCta />
     </>
   );
 }

@@ -1,65 +1,50 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: ['./components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}'],
+  content: ['./components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-fraunces)', 'Georgia', 'serif'],
       },
       colors: {
-        green: {
-          10: '#EAF7EF',
-          20: '#C9EBD5',
-          50: '#30AF5B',
-          60: '#26914A',
-          90: '#292C27',
+        sand: {
+          DEFAULT: '#efe6d8',
+          50: '#f8f3ea',
+          100: '#f3ece0',
+          200: '#e6dac6',
+          300: '#d6c5aa',
         },
-        gray: {
-          5: '#F7F7F5',
-          10: '#EEEEEE',
-          20: '#A2A2A2',
-          30: '#7B7B7B',
-          50: '#585858',
-          90: '#141414',
+        pine: {
+          DEFAULT: '#1f3d2b',
+          600: '#2a5139',
+          800: '#183022',
+          900: '#112418',
+          tint: '#dfe5d6',
         },
-        orange: {
-          10: '#FFF1EA',
-          50: '#FF814C',
+        ember: {
+          DEFAULT: '#e0632e',
+          ink: '#b0461a',
+          tint: '#f6d9c6',
         },
-        blue: {
-          70: '#021639',
+        ink: {
+          DEFAULT: '#1b1a17',
+          soft: '#4f4a41',
+          mute: '#6b655a',
         },
-        yellow: {
-          50: '#FEC601',
-        },
-      },
-      backgroundImage: {
-        'bg-img-1': "url('/img-1.webp')",
-        'bg-img-2': "url('/img-2.webp')",
-        'feature-bg': "url('/feature-bg.webp')",
-        pattern: "url('/pattern.webp')",
-        'pattern-2': "url('/pattern-bg.webp')",
+        line: '#d3c4ab',
       },
       screens: {
         xs: '400px',
-        '3xl': '1680px',
-        '4xl': '2200px',
-      },
-      maxWidth: {
-        '10xl': '1512px',
+        '3xl': '1800px',
       },
       borderRadius: {
-        '5xl': '40px',
+        card: '10px',
       },
-      keyframes: {
-        marquee: { to: { transform: 'translateX(-50%)' } },
-        float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-        dash: { to: { strokeDashoffset: '0' } },
-      },
-      animation: {
-        marquee: 'marquee 40s linear infinite',
-        float: 'float 5s ease-in-out infinite',
+      boxShadow: {
+        card: '0 1px 0 rgba(27,26,23,0.06), 0 12px 32px -18px rgba(27,26,23,0.35)',
+        lift: '0 24px 60px -30px rgba(17,36,24,0.55)',
       },
     },
   },

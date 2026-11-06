@@ -4,7 +4,7 @@ import { GUIDES } from '@/constants/content';
 
 export const dynamic = 'force-static';
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hilink-travel.vercel.app';
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wildway.example';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages = ['', 'how-it-works', 'camps', 'services', 'pricing', 'guides', 'community', 'app', 'about', 'careers', 'press', 'environment', 'contact', 'privacy', 'terms'];

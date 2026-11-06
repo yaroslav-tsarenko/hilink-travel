@@ -1,36 +1,64 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Star } from 'lucide-react';
 import type { Camp } from '@/constants/camps';
-import CampMedia from './CampMedia';
 import FavoriteButton from './FavoriteButton';
+import { Grade, eur } from './Bits';
 
-const diffColor = { Easy: 'bg-green-10 text-green-60', Moderate: 'bg-yellow-50/20 text-[#9A7600]', Hard: 'bg-orange-10 text-orange-50' } as const;
-
-export default function CampCard({ camp }: { camp: Camp }) {
+export default function CampCard({ camp, size = 'md', priority = false }: { camp: Camp; size?: 'md' | 'lg'; priority?: boolean }) {
   return (
-    <Link href={`/camps/${camp.slug}`} className="card group flex h-full flex-col overflow-hidden transition duration-500 hover:-translate-y-1.5 hover:shadow-xl">
-      <div className="relative">
-        <CampMedia camp={camp} className="aspect-[4/3] transition duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 92vw, 380px" />
-        <FavoriteButton slug={camp.slug} name={camp.name} className="absolute right-4 top-4" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold backdrop-blur">{camp.terrain}</span>
+    <article className="group relative flex h-full flex-col">
+      <div className={`relative overflow-hidden rounded-card bg-sand-200 ${size === 'lg' ? 'aspect-[4/3] lg:aspect-[5/4]' : 'aspect-[4/3] sm:aspect-[4/5]'}`}>
+        <Image
+          src={camp.photo}
+          alt={camp.photoAlt}
+          fill
+          priority={priority}
+          sizes={size === 'lg' ? '(max-width: 1024px) 92vw, 640px' : '(max-width: 640px) 92vw, (max-width: 1280px) 45vw, 420px'}
+          className="object-cover transition duration-[900ms] ease-out group-hover:scale-[1.035]"
+        />
+        <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-3">
+          <span className="rounded-[4px] bg-ink/75 px-2 py-1 text-[0.75rem] font-semibold tracking-[0.04em] text-sand-50">{camp.terrain}</span>
+          <FavoriteButton slug={camp.slug} name={camp.name} className="relative z-10" />
+        </div>
+        {camp.spotsLeft <= 3 && (
+          <span className="absolute bottom-3 left-3 rounded-[4px] bg-sand-50 px-2 py-1 text-[0.75rem] font-semibold text-ember-ink">
+            {camp.spotsLeft} {camp.spotsLeft === 1 ? 'place' : 'places'} left
+          </span>
+        )}
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-6">
-        <div className="flexBetween gap-3">
-          <h3 className="bold-20">{camp.name}</h3>
-          <span className="flex shrink-0 items-center gap-1 text-[14px] font-bold">
-            <Star className="h-4 w-4 fill-yellow-50 text-yellow-50" /> {camp.rating}
+      <div className="flex flex-1 flex-col pt-4">
+        <p className="t-meta">
+          {camp.region}, {camp.country}
+        </p>
+        <h3 className={`mt-1 font-serif leading-[1.1] tracking-[-0.01em] ${size === 'lg' ? 'text-[2rem]' : 'text-[1.5rem]'}`}>
+          <Link href={`/camps/${camp.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
+            {camp.name}
+          </Link>
+        </h3>
+        {size === 'lg' && <p className="t-lead mt-3 max-w-[48ch]">{camp.summary}</p>}
+        <dl className="t-num mt-4 grid grid-cols-3 gap-3 border-t border-ink/15 pt-3 text-[0.875rem]">
+          <div>
+            <dt className="sr-only">Duration</dt>
+            <dd>{camp.days} days</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Distance</dt>
+            <dd>{camp.km} km</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Ascent</dt>
+            <dd>+{camp.ascent.toLocaleString('en-GB')} m</dd>
+          </div>
+        </dl>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-[0.875rem]">
+          <span className="text-ink-soft">
+            <Grade level={camp.difficulty} />
+          </span>
+          <span className="text-ink-soft">
+            from <span className="t-num font-serif text-[1.25rem] text-ink">{eur(camp.price)}</span> / night
           </span>
         </div>
-        <p className="regular-14 flex items-center gap-1.5 text-gray-30">
-          <MapPin className="h-4 w-4" /> {camp.location}, {camp.country}
-        </p>
-        <div className="mt-auto flexBetween border-t border-gray-10 pt-4">
-          <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${diffColor[camp.difficulty]}`}>{camp.difficulty} · {camp.duration}</span>
-          <p className="text-[14px] text-gray-30">
-            <span className="bold-20 text-gray-90">${camp.price}</span> / night
-          </p>
-        </div>
       </div>
-    </Link>
+    </article>
   );
 }

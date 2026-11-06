@@ -1,44 +1,39 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import { Star } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
-import PhoneDemo from '@/components/PhoneDemo';
-import GetApp from '@/components/GetApp';
-import Reveal from '@/components/ui/Reveal';
+import FieldCompanion from '@/components/FieldCompanion';
+import PlanCta from '@/components/PlanCta';
+import { SectionHead } from '@/components/ui/Bits';
 
-export const metadata: Metadata = { title: 'Get the app', description: 'Download Hilink for iOS and Android. Offline maps, AR guidance and group trip planning.' };
+export const metadata: Metadata = { title: 'Field app', description: 'Offline maps, elevation, forecasts and group notes for every Wildway trip.' };
 
-const REVIEWS = [
-  { name: 'Maya L.', text: 'The only app I trust when the signal disappears.', avatar: '/person-2.png' },
-  { name: 'Rizky P.', text: 'AR arrows in the fog felt like magic. Saved our summit day.', avatar: '/person-3.png' },
-  { name: 'Dewi A.', text: 'Planning with friends is finally not a 200-message group chat.', avatar: '/person-4.png' },
+const NOTES = [
+  { title: 'Works with no signal', text: 'Maps, tracks and notes are downloaded with the route pack. Your position comes from GPS, which does not need mobile data.' },
+  { title: 'Paper is the backup', text: 'Every route pack also prints on two A4 sheets. Guides carry paper maps and a compass on every trip.' },
+  { title: 'Light on battery', text: 'In flight mode with the screen off between checks, a phone lasts a long weekend. Members can borrow a power bank.' },
 ];
 
 export default function AppPage() {
   return (
     <>
-      <PageHeader eyebrow="Hilink app" title="Your guide in every pocket" text="Tap the features to see the app in action. Free on iOS and Android." crumbs={[{ label: 'App' }]} />
-      <section className="max-container padding-container pb-24">
-        <PhoneDemo />
+      <PageHeader label="Field app" title="The route in your pocket" text="Each trip comes with a route pack for the Wildway field app. Select a feature to see what it shows on the trail. (Interactive demo.)" crumbs={[{ label: 'Field app' }]} seed={31} />
+      <section className="wrap section">
+        <FieldCompanion />
       </section>
-      <section className="max-container padding-container pb-24">
-        <ul className="grid gap-6 md:grid-cols-3">
-          {REVIEWS.map((r, i) => (
-            <li key={r.name}>
-              <Reveal delay={i * 0.08} className="card h-full p-8">
-                <span className="flex gap-0.5">{Array.from({ length: 5 }).map((_, k) => <Star key={k} className="h-4 w-4 fill-yellow-50 text-yellow-50" />)}</span>
-                <p className="regular-18 mt-4">“{r.text}”</p>
-                <span className="mt-6 flex items-center gap-3">
-                  <Image src={r.avatar} alt="" width={36} height={36} className="rounded-full" />
-                  <span className="bold-16">{r.name}</span>
-                </span>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
+      <section className="border-t border-ink/10 bg-sand-50">
+        <div className="wrap section">
+          <SectionHead label="In the field" title="Designed for wet hands and cold batteries" />
+          <ul className="mt-12 grid gap-8 md:grid-cols-3">
+            {NOTES.map((n) => (
+              <li key={n.title} className="border-t-2 border-pine pt-5">
+                <h3 className="t-h4">{n.title}</h3>
+                <p className="mt-3 text-ink-soft">{n.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
-      <div id="download" className="scroll-mt-24">
-        <GetApp />
+      <div id="download" className="scroll-mt-24 pt-20 lg:pt-28">
+        <PlanCta title="Route packs come with every trip" text="Book any trip and the route pack is added to your account the same day. Members can download packs for every route." />
       </div>
     </>
   );

@@ -2,25 +2,21 @@
 
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'motion/react';
-import { Heart, ImagePlus, MessageCircle, Send } from 'lucide-react';
+import { Heart, ImagePlus, MessageCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { POSTS, type Post } from '@/constants/content';
-import Landscape from './ui/Landscape';
+import { GROUPS, POSTS, type GroupId, type Post } from '@/constants/content';
+import { Avatar } from './ui/Bits';
 import { useToast } from './ui/Toast';
 
-const GROUPS = [
-  { id: 'all', label: 'All stories' },
-  { id: 'climbing', label: 'Climbing xixixi' },
-  { id: 'hiking', label: 'Hiking hilink' },
-  { id: 'kinthill', label: 'Hilink kinthill' },
-] as const;
+const ALL = [{ id: 'all' as const, label: 'All reports' }, ...GROUPS];
 
 export default function CommunityFeed() {
   const params = useSearchParams();
   const router = useRouter();
   const toast = useToast();
-  const group = (params.get('group') ?? 'all') as (typeof GROUPS)[number]['id'];
+  const raw = params.get('group');
+  const group: GroupId | 'all' = GROUPS.some((g) => g.id === raw) ? (raw as GroupId) : 'all';
   const [posts, setPosts] = useState<Post[]>(POSTS);
   const [liked, setLiked] = useState<number[]>([]);
   const [draft, setDraft] = useState('');
@@ -30,66 +26,85 @@ export default function CommunityFeed() {
   const publish = (e: FormEvent) => {
     e.preventDefault();
     if (!draft.trim()) return;
-    const p: Post = { id: Date.now(), group: group === 'all' ? 'hiking' : group, author: 'You', avatar: '/person-1.png', camp: 'Somewhere wild', text: draft.trim(), likes: 0, comments: 0, palette: Math.floor(Math.random() * 10), time: 'now' };
+    const p: Post = { id: Date.now(), group: group === 'all' ? 'long-trails' : group, author: 'You', camp: 'Your last trip', text: draft.trim(), likes: 0, comments: 0, time: 'now' };
     setPosts((all) => [p, ...all]);
     setDraft('');
-    toast({ title: 'Story shared!', text: 'Only visible to you in this demo.' });
+    toast({ title: 'Trip report posted', text: 'Visible only to you in this demo.' });
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-      <aside className="lg:sticky lg:top-28 lg:self-start">
-        <p className="eyebrow mb-4">Groups</p>
-        <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
-          {GROUPS.map((g) => (
-            <li key={g.id}>
-              <button type="button" onClick={() => router.replace(g.id === 'all' ? '/community' : `/community?group=${g.id}`, { scroll: false })} className={`w-full whitespace-nowrap rounded-2xl px-4 py-3 text-left font-semibold transition ${group === g.id ? 'bg-green-50 text-white' : 'hover:bg-gray-5'}`}>
-                {g.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+      <aside className="lg:col-span-3" aria-label="Groups">
+        <div className="lg:sticky lg:top-[100px]">
+          <p className="field-label">Groups</p>
+          <ul className="mt-3 flex gap-2 overflow-x-auto pb-2 hide-scrollbar lg:flex-col lg:gap-0 lg:overflow-visible lg:border-t lg:border-ink/15">
+            {ALL.map((g) => (
+              <li key={g.id} className="lg:border-b lg:border-ink/15">
+                <button
+                  type="button"
+                  aria-pressed={group === g.id}
+                  onClick={() => router.replace(g.id === 'all' ? '/community' : `/community?group=${g.id}`, { scroll: false })}
+                  className="chip lg:flex lg:w-full lg:justify-between lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0 lg:py-3 lg:text-[1rem] lg:aria-pressed:bg-transparent lg:aria-pressed:font-semibold lg:aria-pressed:text-pine"
+                >
+                  {g.label}
+                  <span className="t-num hidden text-[0.8125rem] text-ink-soft lg:inline">{g.id === 'all' ? posts.length : posts.filter((p) => p.group === g.id).length}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </aside>
-      <div className="flex flex-col gap-6">
-        <form onSubmit={publish} className="card flex flex-col gap-4 p-5">
-          <div className="flex gap-4">
-            <Image src="/person-1.png" alt="" width={44} height={44} className="h-11 w-11 rounded-full" />
-            <label className="flex-1">
-              <span className="sr-only">Share your story</span>
-              <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={2} placeholder="Share a story from your last trip…" className="w-full resize-none rounded-2xl bg-gray-5 px-4 py-3 outline-none focus:ring-2 focus:ring-green-50/30" />
-            </label>
-          </div>
-          <div className="flexBetween">
-            <button type="button" onClick={() => toast({ title: 'Photo upload', text: 'Coming soon in the app.' })} className="flex items-center gap-2 text-[14px] font-semibold text-gray-30 hover:text-green-50">
-              <ImagePlus className="h-5 w-5" /> Add photo
+
+      <div className="flex flex-col gap-8 lg:col-span-9 xl:col-span-8">
+        <form onSubmit={publish} className="rounded-card border border-line bg-sand-50 p-5">
+          <label htmlFor="report" className="field-label">
+            Share a trip report
+          </label>
+          <textarea id="report" value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} placeholder="Where did you go, what surprised you, what would you pack differently?" className="field mt-2 resize-none bg-sand" />
+          <div className="mt-3 flex items-center justify-between">
+            <button type="button" onClick={() => toast({ title: 'Photo upload', text: 'Not available in this demo.' })} className="inline-flex items-center gap-2 text-[0.875rem] font-medium text-ink-soft hover:text-ink">
+              <ImagePlus className="h-5 w-5" aria-hidden /> Add photo
             </button>
-            <button type="submit" disabled={!draft.trim()} className="flex items-center gap-2 rounded-full bg-green-50 px-5 py-2.5 font-bold text-white transition hover:bg-green-60 disabled:opacity-40">
-              Share <Send className="h-4 w-4" />
+            <button type="submit" disabled={!draft.trim()} className="btn btn-primary">
+              Post report
             </button>
           </div>
         </form>
 
-        <ul className="flex flex-col gap-6">
+        <ul className="flex flex-col gap-10">
           <AnimatePresence initial={false}>
             {list.map((p) => {
               const on = liked.includes(p.id);
               return (
-                <motion.li key={p.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="card overflow-hidden">
-                  <div className="flex items-center gap-3 p-5">
-                    <Image src={p.avatar} alt="" width={44} height={44} className="rounded-full" />
+                <motion.li key={p.id} layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="border-t border-ink/15 pt-6">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={p.author} size={42} tone="sand" />
                     <div>
-                      <p className="bold-16">{p.author}</p>
-                      <p className="regular-14 text-gray-30">at {p.camp} · {p.time}</p>
+                      <p className="font-semibold">{p.author}</p>
+                      <p className="text-[0.8125rem] text-ink-soft">
+                        {p.camp} · {GROUPS.find((g) => g.id === p.group)?.label} · {p.time}
+                      </p>
                     </div>
                   </div>
-                  <p className="regular-16 px-5 pb-4">{p.text}</p>
-                  <Landscape palette={p.palette} className="aspect-[16/8] w-full" />
-                  <div className="flex gap-2 p-3">
-                    <motion.button type="button" whileTap={{ scale: 0.85 }} aria-pressed={on} onClick={() => setLiked((l) => (on ? l.filter((x) => x !== p.id) : [...l, p.id]))} className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition ${on ? 'bg-orange-10 text-orange-50' : 'text-gray-50 hover:bg-gray-5'}`}>
-                      <Heart className={`h-5 w-5 ${on ? 'fill-orange-50' : ''}`} /> {p.likes + (on ? 1 : 0)}
-                    </motion.button>
-                    <button type="button" onClick={() => toast({ title: 'Comments', text: 'Open the Hilink app to join the conversation.' })} className="flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-gray-50 hover:bg-gray-5">
-                      <MessageCircle className="h-5 w-5" /> {p.comments}
+                  <p className="mt-4 max-w-[64ch] font-serif text-[1.25rem] leading-[1.45]">{p.text}</p>
+                  {p.photo && (
+                    <div className="relative mt-5 aspect-[16/9] overflow-hidden rounded-card">
+                      <Image src={p.photo} alt={`Photo from ${p.camp}`} fill sizes="(max-width: 1024px) 92vw, 760px" className="object-cover" />
+                    </div>
+                  )}
+                  <div className="mt-3 flex gap-1">
+                    <button
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setLiked((l) => (on ? l.filter((x) => x !== p.id) : [...l, p.id]))}
+                      className={`t-num inline-flex items-center gap-2 rounded-[6px] px-3 py-2 text-[0.875rem] font-medium transition ${on ? 'bg-ember-tint text-ember-ink' : 'text-ink-soft hover:bg-sand-200'}`}
+                    >
+                      <Heart className={`h-[18px] w-[18px] ${on ? 'fill-current' : ''}`} aria-hidden /> {p.likes + (on ? 1 : 0)}
+                      <span className="sr-only">likes</span>
+                    </button>
+                    <button type="button" onClick={() => toast({ title: 'Comments', text: 'Comments are not part of this demo.' })} className="t-num inline-flex items-center gap-2 rounded-[6px] px-3 py-2 text-[0.875rem] font-medium text-ink-soft hover:bg-sand-200">
+                      <MessageCircle className="h-[18px] w-[18px]" aria-hidden /> {p.comments}
+                      <span className="sr-only">comments</span>
                     </button>
                   </div>
                 </motion.li>

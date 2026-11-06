@@ -2,17 +2,19 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Check, Clock, Mountain, Route, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { CAMPS, getCamp } from '@/constants/camps';
-import { PEOPLE_URL } from '@/constants';
 import BookingWidget from '@/components/BookingWidget';
 import PackingChecklist from '@/components/PackingChecklist';
-import Weather from '@/components/Weather';
-import CampMedia from '@/components/ui/CampMedia';
-import CampCard from '@/components/ui/CampCard';
-import FavoriteButton from '@/components/ui/FavoriteButton';
-import Reveal from '@/components/ui/Reveal';
 import Reviews from '@/components/Reviews';
+import Weather from '@/components/Weather';
+import CampCard from '@/components/ui/CampCard';
+import ElevationProfile from '@/components/ui/ElevationProfile';
+import FavoriteButton from '@/components/ui/FavoriteButton';
+import RouteMap from '@/components/ui/RouteMap';
+import Reveal from '@/components/ui/Reveal';
+import { Avatar, Grade, Stat } from '@/components/ui/Bits';
+import { hashString } from '@/lib/geo';
 
 export const dynamicParams = false;
 
@@ -22,7 +24,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const camp = getCamp((await params).slug);
-  return camp ? { title: camp.name, description: camp.description } : {};
+  return camp ? { title: `${camp.name}, ${camp.country}`, description: camp.summary, openGraph: { images: [camp.photo] } } : {};
 }
 
 export default async function CampPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -30,89 +32,129 @@ export default async function CampPage({ params }: { params: Promise<{ slug: str
   if (!camp) notFound();
   const similar = CAMPS.filter((c) => c.slug !== camp.slug && (c.terrain === camp.terrain || c.difficulty === camp.difficulty)).slice(0, 3);
   const seed = CAMPS.indexOf(camp);
-
-  const stats = [
-    { icon: Route, label: 'Distance', value: camp.distance },
-    { icon: Mountain, label: 'Elevation', value: camp.elevation },
-    { icon: Clock, label: 'Duration', value: camp.duration },
-    { icon: TrendingUp, label: 'Difficulty', value: camp.difficulty },
-  ];
+  const [start, end] = camp.route.split(' to ');
 
   return (
     <>
-      <section className="max-container padding-container pt-6">
-        <nav aria-label="Breadcrumb" className="regular-14 mb-6 flex flex-wrap gap-2 text-gray-30">
-          <Link href="/" className="hover:text-green-50">Home</Link> / <Link href="/camps" className="hover:text-green-50">Camps</Link> / <span className="text-gray-90">{camp.name}</span>
+      <section className="wrap pt-8 lg:pt-10">
+        <nav aria-label="Breadcrumb" className="text-[0.8125rem] text-ink-soft">
+          <ol className="flex flex-wrap items-center gap-2">
+            <li>
+              <Link href="/" className="hover:text-ink hover:underline">
+                Wildway
+              </Link>
+            </li>
+            <li aria-hidden className="text-ink/30">/</li>
+            <li>
+              <Link href="/camps" className="hover:text-ink hover:underline">
+                Trips
+              </Link>
+            </li>
+            <li aria-hidden className="text-ink/30">/</li>
+            <li aria-current="page" className="text-ink">
+              {camp.name}
+            </li>
+          </ol>
         </nav>
-        <div className="relative">
-          <CampMedia camp={camp} priority sizes="100vw" className="h-[320px] rounded-5xl md:h-[480px]" />
-          <div className="absolute inset-0 rounded-5xl bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-          <FavoriteButton slug={camp.slug} name={camp.name} className="absolute right-6 top-6" />
-          <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-3 p-6 text-white md:p-12">
-            <span className="w-fit rounded-full bg-white/20 px-4 py-1.5 text-[14px] font-bold backdrop-blur">{camp.terrain} · {camp.country}</span>
-            <h1 className="bold-40 md:bold-64">{camp.name}</h1>
-            <div className="flex flex-wrap items-center gap-4 text-[14px] md:text-[16px]">
-              <span className="flex items-center gap-1 font-bold">
-                <Star className="h-4 w-4 fill-yellow-50 text-yellow-50" /> {camp.rating} <span className="font-normal opacity-80">({camp.reviews.toLocaleString('en')} reviews)</span>
-              </span>
-              <span className="opacity-90">{camp.location}</span>
-              <span className="flex items-center gap-2">
-                <span className="flex -space-x-3">
-                  {PEOPLE_URL.map((u) => (
-                    <Image key={u} src={u} alt="" width={28} height={28} className="rounded-full ring-2 ring-white" />
-                  ))}
-                </span>
-                {camp.joined}+ joined this month
-              </span>
-            </div>
+
+        <div className="mt-10 grid gap-8 lg:mt-14 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-8">
+            <p className="t-label">
+              {camp.terrain} · {camp.region}, {camp.country}
+            </p>
+            <h1 className="t-display mt-5">{camp.name}</h1>
+            <p className="t-lead mt-5 max-w-[56ch]">{camp.summary}</p>
+          </div>
+          <div className="flex flex-col gap-5 lg:col-span-4 lg:items-end">
+            <p className="t-num text-[0.875rem] text-ink-soft lg:text-right">
+              {camp.coords}
+              <br />
+              Season: {camp.season}
+            </p>
+            <FavoriteButton slug={camp.slug} name={camp.name} variant="inline" />
           </div>
         </div>
+
+        <dl className="mt-10 grid grid-cols-2 gap-6 border-y border-ink/15 py-6 sm:grid-cols-3 lg:grid-cols-6">
+          <Stat label="Duration" value={`${camp.days} days`} />
+          <Stat label="Distance" value={`${camp.km} km`} />
+          <Stat label="Ascent" value={`${camp.ascent.toLocaleString('en-GB')} m`} />
+          <Stat label="Grade" value={<span className="text-[1rem]"><Grade level={camp.difficulty} /></span>} />
+          <Stat label="Group" value={`max ${camp.groupMax}`} />
+          <Stat label="Rating" value={`${camp.rating} / 5`} />
+        </dl>
       </section>
 
-      <section className="max-container padding-container grid gap-10 py-12 lg:grid-cols-[1fr_380px] lg:py-16">
-        <div className="flex flex-col gap-10">
-          <Reveal className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {stats.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="card flex flex-col gap-2 p-5">
-                <Icon className="h-6 w-6 text-green-50" />
-                <span className="regular-14 text-gray-30">{label}</span>
-                <span className="bold-18">{value}</span>
-              </div>
-            ))}
+      <div className="wrap mt-8">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-card sm:aspect-[16/8] lg:aspect-[21/8]">
+          <Image src={camp.photo} alt={camp.photoAlt} fill priority sizes="(max-width: 1360px) 100vw, 1360px" className="object-cover" />
+        </div>
+      </div>
+
+      <section className="wrap grid gap-14 py-14 lg:grid-cols-12 lg:gap-12 lg:py-20">
+        <div className="flex flex-col gap-16 lg:col-span-7 xl:col-span-8">
+          <Reveal>
+            <h2 className="t-h3">The trip</h2>
+            <p className="mt-4 max-w-[66ch] text-[1.0625rem] leading-[1.7]">{camp.description}</p>
+            <div className="mt-6 flex items-center gap-3">
+              <Avatar name={camp.guide} size={44} />
+              <p className="text-[0.9375rem]">
+                <span className="block font-semibold">Led by {camp.guide}</span>
+                <span className="text-ink-soft">Certified mountain leader, Wildway guide team</span>
+              </p>
+            </div>
           </Reveal>
 
           <Reveal>
-            <h2 className="bold-32 mb-4">About this camp</h2>
-            <p className="regular-18 leading-relaxed text-gray-50">{camp.description}</p>
-            <ul className="mt-6 flex flex-col gap-3">
-              {camp.highlights.map((h) => (
-                <li key={h} className="flex items-center gap-3 font-semibold">
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-green-50 text-white">
-                    <Check className="h-4 w-4" strokeWidth={3} />
+            <h2 className="t-h3">Route and stages</h2>
+            <div className="mt-6 overflow-hidden rounded-card border border-line">
+              <RouteMap slug={camp.slug} stages={camp.stages.map((s) => s.km)} labels={{ start: start ?? 'Start', end: end ?? 'Finish' }} className="block h-auto w-full" />
+              <div className="border-t border-line bg-sand-50 p-5">
+                <ElevationProfile profile={camp.profile} km={camp.km} />
+              </div>
+            </div>
+            <ol className="mt-8 flex flex-col">
+              {camp.stages.map((s, i) => (
+                <li key={s.title} className="grid grid-cols-[3.5rem_1fr_auto] gap-3 border-t border-ink/15 py-4 last:border-b">
+                  <span className="t-num pt-1 text-[0.8125rem] font-semibold text-ember-ink">Day {i + 1}</span>
+                  <span>
+                    <span className="block font-serif text-[1.25rem] leading-snug">{s.title}</span>
+                    <span className="mt-1 block text-ink-soft">{s.note}</span>
                   </span>
-                  {h}
+                  <span className="t-num pt-1 text-[0.9375rem]">{s.km} km</span>
                 </li>
               ))}
-            </ul>
+            </ol>
+          </Reveal>
+
+          <Reveal className="grid gap-10 sm:grid-cols-2">
+            <div>
+              <h2 className="t-h4">Included</h2>
+              <ul className="mt-4 flex flex-col gap-2.5">
+                {camp.included.map((a) => (
+                  <li key={a} className="flex gap-3">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-pine" strokeWidth={2.5} aria-hidden />
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h2 className="t-h4">Highlights</h2>
+              <ul className="mt-4 flex flex-col gap-2.5">
+                {camp.highlights.map((h) => (
+                  <li key={h} className="flex gap-3">
+                    <span className="mt-[0.6rem] h-1.5 w-3 shrink-0 bg-ember" aria-hidden />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Reveal>
 
           <Reveal>
-            <h2 className="bold-24 mb-4">Amenities</h2>
-            <div className="flex flex-wrap gap-2">
-              {camp.amenities.map((a) => (
-                <span key={a} className="chip">{a}</span>
-              ))}
-            </div>
-          </Reveal>
-
-          <Reveal className="grid gap-6 xl:grid-cols-2">
-            <Weather seed={seed} elevation={camp.elevation} />
-            <div className="card relative overflow-hidden p-6 lg:p-8">
-              <h3 className="bold-20 mb-2">Offline trail map</h3>
-              <p className="regular-14 text-gray-30">Download before you go — works with GPS only.</p>
-              <Image src="/hero.webp" alt="" width={420} height={340} className="mx-auto mt-2 h-44 w-auto object-contain" />
-              <Link href="/app" className="mt-2 inline-flex font-bold text-green-50 hover:underline">Open in Hilink app →</Link>
-            </div>
+            <h2 className="t-h3 mb-6">Conditions</h2>
+            <Weather seed={hashString(camp.slug)} altitude={Math.max(...camp.profile)} base={camp.terrain === 'Desert' ? 30 : camp.terrain === 'Glacier' ? 14 : 18} />
           </Reveal>
 
           <Reveal>
@@ -124,22 +166,28 @@ export default async function CampPage({ params }: { params: Promise<{ slug: str
           </Reveal>
         </div>
 
-        <aside>
+        <aside className="lg:col-span-5 xl:col-span-4" aria-label="Booking">
           <BookingWidget camp={camp} />
         </aside>
       </section>
 
       {similar.length > 0 && (
-        <section className="max-container padding-container pb-24">
-          <div className="flexBetween mb-8">
-            <h2 className="bold-32">You might also like</h2>
-            <Link href="/camps" className="font-bold text-green-50 hover:underline">All camps →</Link>
+        <section className="border-t border-ink/10 bg-sand-50">
+          <div className="wrap py-16 lg:py-20">
+            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+              <h2 className="t-h2">Similar routes</h2>
+              <Link href="/camps" className="link">
+                All trips <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+            <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {similar.map((c) => (
+                <li key={c.slug}>
+                  <CampCard camp={c} />
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {similar.map((c) => (
-              <li key={c.slug}><CampCard camp={c} /></li>
-            ))}
-          </ul>
         </section>
       )}
     </>

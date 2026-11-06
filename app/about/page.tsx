@@ -1,61 +1,88 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import Reveal from '@/components/ui/Reveal';
 import Stats from '@/components/Stats';
-import { TEAM } from '@/constants/content';
+import { Avatar, SectionHead } from '@/components/ui/Bits';
+import { GUIDES_TEAM, TEAM } from '@/constants/content';
 
-export const metadata: Metadata = { title: 'About Hilink', description: 'Hilink started with climbers who got lost once too often. Today we help millions find their way.' };
+export const metadata: Metadata = { title: 'About', description: 'Wildway is a small company of guides and mapmakers running small-group hiking and wild-camping trips.' };
 
 const TIMELINE = [
-  { year: '2019', text: 'Two climbers get lost on Mount Arjuno and sketch the first offline map on a napkin.' },
-  { year: '2020', text: 'Hilink launches in Indonesia with 40 partner camps.' },
-  { year: '2022', text: 'AR trail guidance ships — the first that works without internet.' },
-  { year: '2024', text: '1,000 camps in 60 countries and a community of 150k climbers.' },
-  { year: '2025', text: '2 million offline maps downloaded and a tree planted for every trip.' },
+  { year: '2019', text: 'Two guides in Tromsø start running weekend camps in Lofoten for friends of friends.' },
+  { year: '2021', text: 'Laugavegur and Sarek added, with local lead guides in Iceland and Lapland.' },
+  { year: '2023', text: 'First route packs: printable maps and GPX for every trip.' },
+  { year: '2025', text: 'Departures open in Utah, Washington, Minnesota and Patagonia.' },
+  { year: '2026', text: 'Ten routes, forty-six guides and the field app.' },
 ];
 
 export default function AboutPage() {
   return (
     <>
-      <PageHeader eyebrow="About Hilink" title="We got lost so you don't have to" text="Hilink is built by climbers, cartographers and engineers who believe everyone deserves to feel safe in the wild." crumbs={[{ label: 'About' }]} />
-      <section className="max-container padding-container grid items-center gap-12 pb-24 lg:grid-cols-2">
-        <Reveal className="relative aspect-[4/3] overflow-hidden rounded-5xl">
-          <Image src="/img-1.webp" alt="View from a tent in the forest" fill sizes="(max-width: 1024px) 92vw, 50vw" className="object-cover" />
+      <PageHeader label="About" title="Guides first, company second" text="Wildway is run by people who still spend most summers on the routes. We keep groups small, camp only where it is allowed and walk out with everything we carried in." crumbs={[{ label: 'About' }]} seed={43} />
+
+      <section className="wrap section grid gap-12 lg:grid-cols-12 lg:items-center">
+        <Reveal className="relative aspect-[4/3] overflow-hidden rounded-card lg:col-span-7">
+          <Image src="/photos/about.webp" alt="Hikers on a ridge trail above cloud-filled valleys" fill sizes="(max-width: 1024px) 92vw, 760px" className="object-cover" />
         </Reveal>
-        <Reveal delay={0.1}>
-          <h2 className="bold-40">Our mission</h2>
-          <p className="regular-18 mt-6 text-gray-50">Starting from the anxiety of climbers visiting a new location, we set out to make getting lost a thing of the past. Offline maps, AR navigation and a community that shares every trail.</p>
-          <p className="regular-18 mt-4 text-gray-50">Today Hilink helps adventurers in 64 countries plan, navigate and come home with stories instead of worries.</p>
-          <Link href="/careers" className="mt-8 inline-block font-bold text-green-50 hover:underline">We are hiring →</Link>
+        <Reveal delay={0.08} className="lg:col-span-5">
+          <h2 className="t-h2">Why small groups</h2>
+          <p className="t-lead mt-5">A group of eight can share a pitch, cross a river together and change plan in five minutes. A group of twenty cannot.</p>
+          <p className="mt-4 text-ink-soft">Every route is run by a lead guide who lives in the region, knows the river levels and the wind, and decides each morning whether the plan holds.</p>
+          <Link href="/careers" className="link mt-6">
+            Work with us <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </Reveal>
       </section>
-      <Stats />
-      <section className="max-container padding-container py-24">
-        <h2 className="bold-40 mb-12">Our story</h2>
-        <ol className="relative border-l-2 border-green-20 pl-8">
-          {TIMELINE.map((t, i) => (
-            <li key={t.year} className="relative pb-10 last:pb-0">
-              <span className="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-4 border-white bg-green-50 shadow" />
-              <Reveal delay={i * 0.05}>
-                <p className="bold-24 text-green-50">{t.year}</p>
-                <p className="regular-18 mt-2 max-w-2xl text-gray-50">{t.text}</p>
+
+      <section className="wrap pb-20 lg:pb-28">
+        <Stats />
+      </section>
+
+      <section className="border-y border-ink/10 bg-sand-50">
+        <div className="wrap section grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <p className="t-label">Timeline</p>
+            <h2 className="t-h2 mt-4">How we got here</h2>
+          </div>
+          <ol className="lg:col-span-8">
+            {TIMELINE.map((t) => (
+              <li key={t.year} className="grid grid-cols-[5rem_1fr] gap-4 border-t border-ink/15 py-5 last:border-b">
+                <span className="t-num font-serif text-[1.5rem] text-pine">{t.year}</span>
+                <p className="pt-1 text-[1.0625rem]">{t.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="wrap section">
+        <SectionHead label="People" title="Lead guides" />
+        <ul className="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {GUIDES_TEAM.map((m, i) => (
+            <li key={m.name}>
+              <Reveal delay={i * 0.05} className="border-t-2 border-pine pt-5">
+                <Avatar name={m.name} size={56} tone={i % 2 ? 'sand' : 'pine'} />
+                <p className="mt-4 font-serif text-[1.375rem] leading-tight">{m.name}</p>
+                <p className="mt-1 text-[0.9375rem] text-ink-soft">{m.role}</p>
+                <p className="t-num mt-3 text-[0.8125rem] text-ink-soft">
+                  Based in {m.base} · {m.years} seasons
+                </p>
               </Reveal>
             </li>
           ))}
-        </ol>
-      </section>
-      <section className="max-container padding-container pb-24">
-        <h2 className="bold-40 mb-10">The team</h2>
-        <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-          {TEAM.map((m, i) => (
-            <li key={m.name}>
-              <Reveal delay={i * 0.06} className="card group flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-xl">
-                <Image src={m.avatar} alt="" width={88} height={88} className="rounded-full ring-4 ring-green-10 transition group-hover:ring-green-50" />
-                <p className="bold-18">{m.name}</p>
-                <p className="regular-14 text-gray-30">{m.role}</p>
-              </Reveal>
+        </ul>
+        <h3 className="t-label mt-16">Office</h3>
+        <ul className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TEAM.map((m) => (
+            <li key={m.name} className="flex items-center gap-3">
+              <Avatar name={m.name} size={36} tone="sand" />
+              <span>
+                <span className="block font-medium">{m.name}</span>
+                <span className="text-[0.8125rem] text-ink-soft">{m.role}</span>
+              </span>
             </li>
           ))}
         </ul>

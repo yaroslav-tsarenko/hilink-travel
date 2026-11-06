@@ -1,70 +1,105 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
 import Reveal from '@/components/ui/Reveal';
 import TripPlanner from '@/components/TripPlanner';
 import FaqList from '@/components/FaqList';
-import GetApp from '@/components/GetApp';
-import Button from '@/components/Button';
+import { SectionHead } from '@/components/ui/Bits';
 
 export const metadata: Metadata = {
-  title: 'How Hilink works',
-  description: 'Pick a camp, download the offline map, invite friends and follow AR guidance to the summit. Try the interactive trip planner.',
+  title: 'How it works',
+  description: 'How a guided Wildway trip works, from choosing a route to the last pitch. Try the three-question trip planner.',
 };
 
 const STEPS = [
-  { n: '01', title: 'Find your camp', text: 'Browse 1,200+ partner camps by terrain, difficulty and budget — or let the planner choose for you.', icon: '/location.svg' },
-  { n: '02', title: 'Download the map', text: 'Save the trail with contour lines and water sources. It works with zero signal.', icon: '/map.svg' },
-  { n: '03', title: 'Invite your crew', text: 'Create a group trip, vote on dates and share one schedule with everyone.', icon: '/calendar.svg' },
-  { n: '04', title: 'Follow the arrows', text: 'Point your camera at the trail and AR guidance shows the way to the top.', icon: '/tech.svg' },
+  { title: 'Choose a route', text: 'Filter the ten routes by landscape, grade and length, or use the planner below. Each trip page lists the stages, the camps and exactly what is included.', meta: 'Online, 10 minutes' },
+  { title: 'Request a place', text: 'Pick a start date and group size. Nothing is charged at this point; your guide checks that the route suits you and confirms within a day.', meta: 'Reply within 24 h' },
+  { title: 'Prepare together', text: 'A short call about fitness, food and kit. You get the route pack — printable maps, GPX, water sources and bail-out points — and rent anything you are missing.', meta: '2–4 weeks before' },
+  { title: 'Walk and camp', text: 'Five to seven hours on foot a day at a steady pace, a legal pitch every night, and everything carried out. Guides change the plan when the weather does.', meta: 'On the trail' },
+];
+
+const GRADES = [
+  { name: 'Easy', text: 'Paths all the way, 4–6 hours a day, light pack. Fine for a first multi-day trip with reasonable fitness.' },
+  { name: 'Moderate', text: 'Longer days, some steep ground and river fords, full pack on some stages. You should be comfortable walking two days in a row.' },
+  { name: 'Hard', text: 'Trackless or exposed terrain, heavy packs and serious weather. We ask about one previous multi-day trip before confirming.' },
 ];
 
 export default function HowItWorksPage() {
   return (
     <>
-      <PageHeader eyebrow="How it works" title="From couch to summit in four steps" text="Hilink takes the anxiety out of new places. Plan, download and go — we will keep you on the trail." crumbs={[{ label: 'How it works' }]}>
+      <PageHeader
+        label="How it works"
+        title="From first question to last pitch"
+        text="Wildway trips are small, guided and planned around the weather. Here is what happens between clicking a route and walking out at the other end."
+        crumbs={[{ label: 'How it works' }]}
+        seed={5}
+      >
         <div className="flex flex-wrap gap-3">
-          <Button title="Plan a trip" variant="btn_green" href="#planner" />
-          <Button title="Browse camps" variant="btn_outline" href="/camps" />
+          <Link href="#planner" className="btn btn-primary btn-lg">
+            Try the trip planner
+          </Link>
+          <Link href="/camps" className="btn btn-outline btn-lg">
+            Browse trips
+          </Link>
         </div>
       </PageHeader>
 
-      <section className="max-container padding-container pb-24">
-        <ol className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <section className="wrap section">
+        <ol className="border-t border-ink/20">
           {STEPS.map((s, i) => (
-            <li key={s.n}>
-              <Reveal delay={i * 0.08} className="card group relative h-full overflow-hidden p-8 transition hover:-translate-y-1 hover:shadow-xl">
-                <span className="bold-64 absolute -right-2 -top-4 text-gray-10 transition group-hover:text-green-10">{s.n}</span>
-                <div className="relative grid h-14 w-14 place-items-center rounded-full bg-green-50 transition group-hover:rotate-[-10deg]">
-                  <Image src={s.icon} alt="" width={26} height={26} />
+            <li key={s.title}>
+              <Reveal className="grid gap-4 border-b border-ink/20 py-8 md:grid-cols-12 md:gap-8 lg:py-10">
+                <span className="t-num font-serif text-[3rem] font-[350] leading-none text-pine md:col-span-2 lg:text-[4rem]">{String(i + 1).padStart(2, '0')}</span>
+                <h2 className="t-h3 md:col-span-4">{s.title}</h2>
+                <div className="md:col-span-6">
+                  <p className="text-[1.0625rem] leading-relaxed">{s.text}</p>
+                  <p className="mt-3 text-[0.875rem] font-semibold text-ember-ink">{s.meta}</p>
                 </div>
-                <h3 className="bold-20 relative mt-6">{s.title}</h3>
-                <p className="regular-16 relative mt-3 text-gray-30">{s.text}</p>
               </Reveal>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="max-container padding-container pb-24">
-        <Reveal className="mb-10 max-w-2xl">
-          <p className="eyebrow mb-3">Interactive</p>
-          <h2 className="bold-40 lg:bold-52">Not sure where to go? Answer three questions.</h2>
-        </Reveal>
+      <section className="border-y border-ink/10 bg-sand-50">
+        <div className="wrap section">
+          <SectionHead label="Grades" title="How hard is hard?" text="Every route has one of three grades. If you are between two, talk to us: the guide will be honest about whether a route suits you." />
+          <ul className="mt-12 grid gap-8 md:grid-cols-3">
+            {GRADES.map((g, i) => (
+              <li key={g.name} className="border-t-2 border-pine pt-5">
+                <p className="flex items-center gap-3">
+                  <span className="flex items-end gap-[3px]" aria-hidden>
+                    {[0, 1, 2].map((k) => (
+                      <span key={k} className={`w-[6px] rounded-[1px] ${k <= i ? 'bg-pine' : 'bg-pine/20'}`} style={{ height: 8 + k * 5 }} />
+                    ))}
+                  </span>
+                  <span className="t-h4">{g.name}</span>
+                </p>
+                <p className="mt-3 text-ink-soft">{g.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="wrap section">
+        <SectionHead label="Planner" title="Not sure where to go? Answer three questions." className="mb-12" />
         <TripPlanner />
       </section>
 
-      <section className="max-container padding-container grid gap-12 pb-24 lg:grid-cols-[1fr_1.4fr]">
-        <Reveal>
-          <p className="eyebrow mb-3">FAQ</p>
-          <h2 className="bold-40">Questions, answered</h2>
-          <p className="regular-16 mt-4 text-gray-30">Still curious? Our team replies within a day.</p>
-          <div className="mt-6"><Button title="Contact us" variant="btn_dark_green" href="/contact" /></div>
-        </Reveal>
-        <FaqList />
+      <section className="wrap grid gap-12 pb-20 lg:grid-cols-12 lg:pb-28">
+        <div className="lg:col-span-4">
+          <p className="t-label">Questions</p>
+          <h2 className="t-h2 mt-4">Before you book</h2>
+          <p className="mt-4 text-ink-soft">Still unsure about something? We reply within one working day.</p>
+          <Link href="/contact" className="btn btn-outline mt-6">
+            Ask a guide
+          </Link>
+        </div>
+        <div className="lg:col-span-8">
+          <FaqList />
+        </div>
       </section>
-
-      <GetApp />
     </>
   );
 }

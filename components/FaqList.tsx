@@ -2,27 +2,28 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { FAQ } from '@/constants/content';
 
 export default function FaqList({ items = FAQ }: { items?: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(0);
+  const id = useId();
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="border-t border-ink/20">
       {items.map((f, i) => {
         const on = open === i;
         return (
-          <li key={f.q} className={`card overflow-hidden transition ${on ? 'border-green-50 shadow-lg' : ''}`}>
-            <button type="button" onClick={() => setOpen(on ? null : i)} aria-expanded={on} className="flexBetween w-full gap-4 px-6 py-5 text-left">
-              <span className="bold-18">{f.q}</span>
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition duration-300 ${on ? 'rotate-45 bg-green-50 text-white' : 'bg-gray-5'}`}>
-                <Plus className="h-4 w-4" />
-              </span>
-            </button>
+          <li key={f.q} className="border-b border-ink/20">
+            <h3>
+              <button type="button" onClick={() => setOpen(on ? null : i)} aria-expanded={on} aria-controls={`${id}-${i}`} className="flex w-full items-center justify-between gap-6 py-5 text-left">
+                <span className="font-serif text-[1.25rem] leading-snug lg:text-[1.375rem]">{f.q}</span>
+                <Plus className={`h-5 w-5 shrink-0 text-pine transition-transform duration-300 ${on ? 'rotate-45' : ''}`} aria-hidden />
+              </button>
+            </h3>
             <AnimatePresence initial={false}>
               {on && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}>
-                  <p className="regular-16 px-6 pb-6 text-gray-30">{f.a}</p>
+                <motion.div id={`${id}-${i}`} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.28 }} className="overflow-hidden">
+                  <p className="max-w-[64ch] pb-6 text-ink-soft">{f.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>

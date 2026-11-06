@@ -1,29 +1,32 @@
 'use client';
 
-import { Heart } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Bookmark } from 'lucide-react';
 import { useFavorites } from '@/lib/useFavorites';
 import { useToast } from './Toast';
 
-export default function FavoriteButton({ slug, name, className = '' }: { slug: string; name: string; className?: string }) {
+export default function FavoriteButton({ slug, name, className = '', variant = 'overlay' }: { slug: string; name: string; className?: string; variant?: 'overlay' | 'inline' }) {
   const { isFavorite, toggle } = useFavorites();
   const toast = useToast();
   const active = isFavorite(slug);
+  const base =
+    variant === 'overlay'
+      ? `grid h-10 w-10 place-items-center rounded-full transition ${active ? 'bg-ember text-ink' : 'bg-sand-50/95 text-ink hover:bg-white'}`
+      : `btn ${active ? 'bg-ember text-ink hover:bg-[#ea7444]' : 'btn-outline'}`;
   return (
-    <motion.button
+    <button
       type="button"
-      whileTap={{ scale: 0.8 }}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         toggle(slug);
-        toast({ title: active ? 'Removed from saved' : 'Saved to your camps', text: name });
+        toast({ title: active ? 'Removed from saved trips' : 'Saved to your trips', text: name });
       }}
       aria-pressed={active}
-      aria-label={active ? `Remove ${name} from saved` : `Save ${name}`}
-      className={`grid h-11 w-11 place-items-center rounded-full bg-white/90 shadow-md backdrop-blur transition hover:scale-105 ${className}`}
+      aria-label={active ? `Remove ${name} from saved trips` : `Save ${name}`}
+      className={`${base} ${className}`}
     >
-      <Heart className={`h-5 w-5 transition ${active ? 'fill-orange-50 text-orange-50' : 'text-gray-90'}`} />
-    </motion.button>
+      <Bookmark className={`h-[18px] w-[18px] ${active ? 'fill-current' : ''}`} aria-hidden />
+      {variant === 'inline' && <span>{active ? 'Saved' : 'Save trip'}</span>}
+    </button>
   );
 }

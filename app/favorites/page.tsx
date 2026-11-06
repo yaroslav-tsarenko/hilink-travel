@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import FavoritesList from '@/components/FavoritesList';
 
-export const metadata: Metadata = { title: 'Saved camps', robots: { index: false } };
+export const metadata: Metadata = { title: 'Saved trips', robots: { index: false } };
 
 export default function FavoritesPage() {
   return (
     <>
-      <PageHeader eyebrow="Your list" title="Saved camps" text="Camps you have hearted. Saved on this device." crumbs={[{ label: 'Saved camps' }]} />
-      <section className="max-container padding-container pb-24"><FavoritesList /></section>
+      <PageHeader label="Your list" title="Saved trips" text="Routes you have bookmarked. Stored on this device only." crumbs={[{ label: 'Saved trips' }]} seed={61} />
+      <section className="wrap section">
+        <FavoritesList />
+      </section>
     </>
   );
 }
